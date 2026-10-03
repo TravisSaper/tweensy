@@ -5,6 +5,15 @@ versions: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.6.1] - 2026-10-03
+
+### Fixed
+- Claude could start a long render in the background and end its reply; the render was then stopped
+  partway, so no video appeared and no progress bar showed. Renders now always run in the foreground
+  (with the longest timeout) and Claude waits for them to finish.
+- Hooks from your own Claude Code setup no longer run inside Tweensy (`disableAllHooks` for its runs),
+  so personal hooks can't add noise or block steps. Skills still load.
+
 ## [2.6.0] - 2026-10-03
 
 First public release.

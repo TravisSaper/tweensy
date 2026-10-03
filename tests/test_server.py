@@ -202,6 +202,7 @@ class ServerTest(unittest.TestCase):
         self.assertIn("Bash(npx:*)", allow)
         self.assertNotIn("Bash(rm:*)", allow)
         self.assertNotIn("Bash(sudo:*)", allow)
+        self.assertTrue(settings["disableAllHooks"])
         self.assertIn("Tweensy", (config.RUNTIME / "system_note.txt").read_text(encoding="utf-8"))
 
 

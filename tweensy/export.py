@@ -33,7 +33,8 @@ def render_note(export):
     return (f"\n\n---\nExport setting (from the Tweensy app): {label}.\n"
             f"Render with: mkdir -p {PROGRESS_LOG.parent.as_posix()} && npx hyperframes render . {flags} "
             f"-o <output file> 2>&1 | tee {PROGRESS_LOG.as_posix()}\n"
-            "(Keep the tee part: Tweensy reads that log to show a progress bar.)\n"
+            "Run it in the foreground with the longest Bash timeout and wait for it to finish; don't run it in the "
+            "background. (Keep the tee part: Tweensy reads that log to show a progress bar.)\n"
             f"{size}\n"
             "If you're adding graphics over the user's own footage, match that footage's size and frame rate "
             "instead.")

@@ -43,6 +43,9 @@ guessing; otherwise build.
 If a prompt points at a font file in fonts/ that is missing, download that free font (Google Fonts or the
 @fontsource npm packages) into fonts/ yourself. If sounds are wanted and sfx/ is missing, make small
 click/tick/chime sounds with ffmpeg into sfx/.
+Run renders in the foreground and wait for them to finish before you reply: never use run_in_background or
+"&" for a render. When this reply ends, anything still running is stopped, so a background render never
+finishes. Give the Bash call the longest timeout (600000 ms). Tweensy shows its own progress bar.
 When a render finishes, say the file name (for example renders/first.mp4): it appears in the Videos panel.
 If you install something that needs a new PATH (Windows especially), tell them to close and reopen Tweensy."""
 
@@ -52,7 +55,9 @@ def write_runtime_files():
     survive command-line quoting (which differs on Windows)."""
     config.RUNTIME.mkdir(exist_ok=True)
     (config.RUNTIME / "system_note.txt").write_text(SYSTEM_NOTE, encoding="utf-8")
-    settings = {"permissions": {"allow": ALLOWED_TOOLS}}
+    # Hooks from the person's own Claude Code setup (and its plugins) are meant for their
+    # terminal sessions; inside Tweensy they only add noise, so runs start without them.
+    settings = {"disableAllHooks": True, "permissions": {"allow": ALLOWED_TOOLS}}
     (config.RUNTIME / "settings.json").write_text(json.dumps(settings, indent=1), encoding="utf-8")
 
 

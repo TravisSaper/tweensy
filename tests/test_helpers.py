@@ -49,7 +49,9 @@ class HelperTest(unittest.TestCase):
         self.assertEqual(friendly_error("Something else broke"), "Something else broke")
 
     def test_render_note_writes_progress_log(self):
-        self.assertIn("| tee .tweensy/render.log", render_note({"res": "1080p", "fps": 30}))
+        note = render_note({"res": "1080p", "fps": 30})
+        self.assertIn("| tee .tweensy/render.log", note)
+        self.assertIn("don't run it in the background", note)
 
     def test_describe_tool(self):
         self.assertEqual(describe_tool("Bash", {"description": "Render the video"}), "Render the video")
