@@ -40,7 +40,7 @@ jobs:
       - name: Smoke test (start it, load the page, call the API)
         shell: bash
         run: python scripts/smoke_test.py "dist/tweensy$([ "$RUNNER_OS" = Windows ] && echo .exe)"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: tweensy-${{ matrix.os }}
           path: dist/release/*
