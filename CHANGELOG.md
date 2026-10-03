@@ -5,6 +5,40 @@ versions: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-10-03
+
+### Added
+- **Shape** in the export settings: 16:9, 9:16 or 1:1 (square), at 1080p or 4K. The shape you pick is
+  the video's shape; using a storyboard sets it to the board's shape.
+- A quick **export pop-up** on the badge next to Send: shape, quality and frame rate in one click each.
+- The blue highlight in the bottom bar **slides** to the tab you pick.
+- **Collapsible sidebar:** click the open tab again (or the sidebar button at the top left) to slide the
+  left panel away and widen the chat; any tab brings it back. The choice is remembered.
+- **Add files** opens a centred chooser over a blurred background that explains each folder (Project
+  folder, Screenshots, Fonts, Sound effects). Click one to pick files (only matching file types are
+  shown) or drag files onto it. Dialogs now blur what's behind them.
+- **New project** and every question the app asks (storyboard labels, delete/clear scene, warnings)
+  now use an in-app card over a blurred background instead of the browser's pop-up boxes. New project
+  shows the folder name it will create, and what it becomes if that name is taken.
+- **One-line install and update**, no download page needed:
+  `curl -fsSL https://raw.githubusercontent.com/TravisSaper/tweensy/main/install.sh | sh` (Mac/Linux) or
+  `irm https://raw.githubusercontent.com/TravisSaper/tweensy/main/install.ps1 | iex` (Windows). Run it
+  again to update. It adds a `tweensy` command (and a Start menu shortcut on Windows).
+  [docs/INSTALL.md](docs/INSTALL.md) lets a coding agent do the install for you.
+- A **Settings** menu next to Fix: **System / Light / Dark** appearance (remembered) and the port.
+- **Choose the port:** `TWEENSY_PORT=9000` when installing, then **Settings → Port** in the app or
+  `tweensy --port 9000` any time later. The choice is saved in `settings.json`.
+- Subtle motion: new messages slide up, buttons press, pop-ups and dialogs scale in.
+  It all turns off when the system asks for reduced motion.
+
+### Changed
+- **24 fps** replaces 30 fps (choices are now 24 or 60). Projects saved at 30 fps move to 24.
+- Everything you can click is now **blue**; purple stays the brand colour.
+- Prompt, style, chip and starter buttons **add** to the chat box instead of replacing it
+  ("Add this prompt", "Add this style").
+- Example prompts no longer fix a shape; the export setting decides it. The "24 fps film look" chip
+  is gone (it's in the picker now).
+
 ## [2.6.1] - 2026-10-03
 
 ### Fixed

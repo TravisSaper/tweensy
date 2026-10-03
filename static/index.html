@@ -5,9 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tweensy</title>
 <link rel="stylesheet" href="css/styles.css" />
+<script>
+  // Set the theme before the page draws, so it never flashes the wrong colours.
+  (function () {
+    var t; try { t = localStorage.getItem("ms-theme"); } catch (e) {}
+    if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
 </head>
 <body>
 <header>
+  <button class="icon-btn" id="sidebarToggle" aria-label="Hide sidebar" title="Hide sidebar" aria-controls="guidePanel" aria-expanded="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+  </button>
   <div class="brand"><div class="logo">▶</div>Tweensy</div>
   <div class="proj">
     <label for="project">Project</label>
@@ -63,6 +74,31 @@
   </div>
 </div>
 
+<div class="overlay" id="addFiles" hidden>
+  <div class="modal files-modal" role="dialog" aria-modal="true" aria-labelledby="addFilesTitle">
+    <div class="modal-head">
+      <h3 id="addFilesTitle">Add files to this project</h3>
+      <button class="btn small" id="addFilesClose" aria-label="Close">Close</button>
+    </div>
+    <p class="hint">Pick where your files go, or drag them onto a card. Claude can then use them in your video.</p>
+    <div class="dest-list" id="destList"></div>
+    <p class="hint" id="addFilesNote"></p>
+  </div>
+</div>
+
+<div class="overlay dialog-overlay" id="dialog" hidden>
+  <div class="modal dialog-modal" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <h3 id="dlgTitle"></h3>
+    <p class="hint" id="dlgText"></p>
+    <input id="dlgInput" type="text" autocomplete="off" />
+    <p class="hint" id="dlgHint"></p>
+    <div class="modal-foot dialog-foot">
+      <button class="btn" id="dlgCancel">Cancel</button>
+      <button class="btn primary" id="dlgOk">OK</button>
+    </div>
+  </div>
+</div>
+
 <main>
   <section class="panel" id="guidePanel" data-view="guide">
     <h2 id="guideTitle">Guide</h2>
@@ -77,18 +113,13 @@
       <div class="bar">
         <button class="btn primary" id="send">Send</button>
         <button class="btn" id="stop" hidden>Stop</button>
-        <button class="btn" id="attach" title="Copy your own files (video, images, fonts) into this project">Add files</button>
-        <select id="attachTo" title="Where the files go">
-          <option value="">into the project</option>
-          <option value="screenshots">into screenshots/</option>
-          <option value="fonts">into fonts/</option>
-          <option value="sfx">into sfx/</option>
-        </select>
+        <button class="btn" id="attach" title="Add your own video, images, fonts or sounds to this project">Add files</button>
         <input type="file" id="file" multiple hidden />
         <span class="spacer"></span>
-        <button class="badge" id="exportBadge" title="Export quality for this project (click to change)">
-          <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg><span id="exportLabel">4K · 60 fps</span>
+        <button class="badge" id="exportBadge" aria-haspopup="true" aria-expanded="false" title="Shape, quality and frame rate for this project">
+          <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg><span id="exportLabel">16:9 · 4K · 60 fps</span>
         </button>
+        <div class="export-pop" id="exportPop" hidden></div>
       </div>
       <div class="hint" style="margin-top:6px">Enter to send · Shift+Enter for a new line</div>
     </div>

@@ -29,6 +29,8 @@ class ServerTest(unittest.TestCase):
         config.PROJECTS = cls.tmp / "projects"
         config.STATE_DIR = config.PROJECTS / ".chats"
         config.RUNTIME = cls.tmp / ".runtime"
+        config.DATA = cls.tmp
+        config.SETTINGS = cls.tmp / "settings.json"
         config.PROJECTS.mkdir()
         claude.write_runtime_files()
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
@@ -71,6 +73,16 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("text/html", headers["Content-Type"])
         self.assertIn(b"Tweensy", body)
+
+    def test_port_setting(self):
+        self.assertIsNone(config.saved_port())
+        for bad in ("abc", 80, 70000, None):
+            status, body = self.post_json("/api/port", {"port": bad})
+            self.assertEqual(status, 400, bad)
+        status, body = self.post_json("/api/port", {"port": 9000})
+        self.assertEqual((status, body["port"]), (200, 9000))
+        self.assertEqual(config.saved_port(), 9000)
+        self.assertEqual(self.get_json("/api/settings")[1]["saved_port"], 9000)
 
     def test_guide_has_every_prompt(self):
         status, guide = self.get_json("/api/guide")
@@ -137,18 +149,18 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(data["history"], [])
         self.assertFalse(data["busy"])
-        self.assertEqual(data["export"], {"res": "4k", "fps": 60})
+        self.assertEqual(data["export"], {"aspect": "16:9", "res": "4k", "fps": 60})
 
     def test_export_setting_saves_and_validates(self):
         name = self.make_project("export")
-        status, saved = self.post_json(f"/api/projects/{name}/export", {"res": "1080p", "fps": 30})
+        status, saved = self.post_json(f"/api/projects/{name}/export", {"aspect": "1:1", "res": "1080p", "fps": 24})
         self.assertEqual(status, 200)
-        self.assertEqual(saved, {"res": "1080p", "fps": 30})
+        self.assertEqual(saved, {"aspect": "1:1", "res": "1080p", "fps": 24})
         status, data = self.get_json(f"/api/projects/{name}/history")
-        self.assertEqual(data["export"], {"res": "1080p", "fps": 30})
+        self.assertEqual(data["export"], {"aspect": "1:1", "res": "1080p", "fps": 24})
         # Anything unknown falls back to the default.
-        status, saved = self.post_json(f"/api/projects/{name}/export", {"res": "8k", "fps": "999"})
-        self.assertEqual(saved, {"res": "4k", "fps": 60})
+        status, saved = self.post_json(f"/api/projects/{name}/export", {"aspect": "21:9", "res": "8k", "fps": "999"})
+        self.assertEqual(saved, {"aspect": "16:9", "res": "4k", "fps": 60})
         status, _ = self.post_json("/api/projects/no-such-project/export", {"res": "4k", "fps": 60})
         self.assertEqual(status, 404)
 

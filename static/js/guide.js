@@ -4,6 +4,7 @@ import { $, esc } from "./util.js";
 import { state, MOBILE } from "./state.js";
 import { exportPicker } from "./export.js";
 import { openBoard } from "./sketch.js";
+import { settingsPanel } from "./settings.js";
 import { autosize } from "./chat.js";
 
 // Menus in the bottom bar. Guide menus fill the left panel; Chat and Videos are their own
@@ -16,6 +17,7 @@ const ICON = {
   export: '<path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/>',
   sketch: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
   fix: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   chat: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
   videos: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5"/>',
 };
@@ -29,15 +31,57 @@ export const TABS = [
   { id: "sketch", label: "Sketch", sections: [], intro: "Storyboard your video scene by scene. Claude turns it into a finished animation." },
   { id: "export", label: "Export", sections: ["export"], intro: "Choose quality for this project, or export a special format." },
   { id: "fix", label: "Fix", sections: ["fix"], intro: "Something looks off? Click the problem." },
+  { id: "settings", label: "Settings", sections: [], intro: "How Tweensy looks and where it runs." },
   { id: "chat", label: "Chat", mobile: true },
   { id: "videos", label: "Videos", mobile: true },
 ];
 
 export function buildNav() {
-  $("#nav").innerHTML = TABS.map((t) => `<button data-tab="${t.id}" class="${t.mobile ? "mobile-only" : ""}" aria-label="${t.label}">
+  $("#nav").innerHTML = '<span class="nav-pill" aria-hidden="true"></span>' +
+    TABS.map((t) => `<button data-tab="${t.id}" class="${t.mobile ? "mobile-only" : ""}" aria-label="${t.label}">
       <svg viewBox="0 0 24 24" aria-hidden="true">${ICON[t.id]}</svg>${t.label}</button>`).join("");
-  $("#nav").querySelectorAll("button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+  $("#nav").querySelectorAll("button").forEach((b) => (b.onclick = () => onNavClick(b.dataset.tab)));
+  $("#sidebarToggle").onclick = () => setSidebar(!sidebarOpen());
   MOBILE.addEventListener("change", () => showTab(MOBILE.matches ? "chat" : state.tab));
+  window.addEventListener("resize", () => movePill(false));
+  let closed = false;
+  try { closed = localStorage.getItem("ms-sidebar") === "closed"; } catch {}
+  setSidebar(!closed, false);
+}
+
+// ---------- sidebar (wide screens) ----------
+const sidebarOpen = () => !$("main").classList.contains("sidebar-closed");
+
+// Open or close the left panel. On phones there's no sidebar: the bar switches whole screens.
+export function setSidebar(open, remember = true) {
+  $("main").classList.toggle("sidebar-closed", !open);
+  const btn = $("#sidebarToggle");
+  btn.setAttribute("aria-expanded", String(open));
+  btn.title = open ? "Hide sidebar" : "Show sidebar";
+  btn.setAttribute("aria-label", btn.title);
+  if (remember) { try { localStorage.setItem("ms-sidebar", open ? "open" : "closed"); } catch {} }
+  movePill();
+}
+
+// Clicking the tab that's already open closes the sidebar; any tab opens it again.
+function onNavClick(id) {
+  const tab = TABS.find((t) => t.id === id);
+  if (!MOBILE.matches && !tab.mobile) {
+    if (sidebarOpen() && id === state.tab) { setSidebar(false); return; }
+    if (!sidebarOpen()) setSidebar(true);
+  }
+  showTab(id);
+}
+
+// Slide the highlight behind the active tab (hidden when no tab is active).
+function movePill(animate = true) {
+  const nav = $("#nav"), pill = nav.querySelector(".nav-pill");
+  const active = [...nav.querySelectorAll("button.on")].find((b) => b.offsetParent);
+  nav.classList.toggle("no-anim", !animate);
+  if (!active || (!MOBILE.matches && !sidebarOpen())) { pill.style.opacity = "0"; return; }
+  pill.style.opacity = "1";
+  pill.style.width = `${active.offsetWidth}px`;
+  pill.style.transform = `translateX(${active.offsetLeft}px)`;
 }
 
 export function showTab(id) {
@@ -50,16 +94,18 @@ export function showTab(id) {
   }
   const view = isGuide ? "guide" : tab.id;
   document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("on", p.dataset.view === view));
+  const first = !$("#nav .nav-pill").style.width;
   document.querySelectorAll("#nav button").forEach((b) => {
     const on = MOBILE.matches ? b.dataset.tab === id : b.dataset.tab === state.tab;
     b.classList.toggle("on", on);
   });
+  movePill(!first);
 }
 
-// Put text in the chat box (or add it under what's there, for style blocks).
-export function setInput(text, append = false) {
+// Add text to the chat box, under anything already there, so prompts, styles and chips stack.
+export function setInput(text) {
   const box = $("#input");
-  box.value = append && box.value.trim() ? box.value.replace(/\s+$/, "") + "\n\n" + text : text;
+  box.value = box.value.trim() ? box.value.replace(/\s+$/, "") + "\n\n" + text : text;
   if (MOBILE.matches) showTab("chat");
   autosize();
   box.focus();
@@ -73,6 +119,7 @@ export function renderGuide() {
   root.innerHTML = `<div class="tab-intro">${esc(tab.intro)}</div>`;
   if (tab.id === "export") root.appendChild(exportPicker());
   if (tab.id === "sketch") root.appendChild(sketchIntro());
+  if (tab.id === "settings") root.appendChild(settingsPanel());
   tab.sections.forEach((sid) => {
     const sec = state.guide.find((s) => s.id === sid);
     if (sec) root.appendChild(renderSection(sec));
@@ -128,8 +175,8 @@ function renderCard(it) {
     <div class="row"></div>`;
   const use = document.createElement("button");
   use.className = "btn small primary";
-  use.textContent = isStyle ? "Add under my prompt" : "Use this prompt";
-  use.onclick = () => setInput(it.text, isStyle);
+  use.textContent = isStyle ? "Add this style" : "Add this prompt";
+  use.onclick = () => setInput(it.text);
   const copy = document.createElement("button");
   copy.className = "btn small"; copy.textContent = "Copy";
   copy.onclick = async () => {

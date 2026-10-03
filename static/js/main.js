@@ -9,6 +9,7 @@ import { initProjects, loadProjects } from "./projects.js";
 import { initChat } from "./chat.js";
 import { initVideos } from "./videos.js";
 import { initSketch } from "./sketch.js";
+import { initDialog } from "./dialog.js";
 
 initExport();
 initSetup();
@@ -16,6 +17,7 @@ initProjects();
 initChat();
 initVideos();
 initSketch();
+initDialog();
 buildNav();
 
 state.guide = await api("/api/guide");

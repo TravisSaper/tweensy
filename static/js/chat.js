@@ -224,17 +224,69 @@ export async function send() {
   }
 }
 
+// Where your own files can go, and what each folder is for.
+const DESTINATIONS = [
+  { folder: "", title: "Project folder", path: "your project", accept: "",
+    icon: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    text: "Your own video, a product photo, a logo or anything Claude should use directly. Put your talking video here for “Graphics on your own video”." },
+  { folder: "screenshots", title: "Screenshots", path: "screenshots/", accept: "image/*",
+    icon: '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="15.5" cy="8.5" r="1.5"/>',
+    text: "Screens of your app or website. The “App promo from screenshots” example builds a video around them." },
+  { folder: "fonts", title: "Fonts", path: "fonts/", accept: ".ttf,.otf,.woff,.woff2",
+    icon: '<path d="M4 20 10 4h4l6 16M7 14h10"/>',
+    text: "Your own font files (.ttf, .otf, .woff2), so your videos use your brand font. Then say “use my font”." },
+  { folder: "sfx", title: "Sound effects", path: "sfx/", accept: "audio/*",
+    icon: '<path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
+    text: "Short clicks, ticks, whooshes or chimes (.wav, .mp3) for the “Add sound effects” prompt." },
+];
+let uploadFolder = "";
+
+function renderDestinations() {
+  const list = $("#destList");
+  list.innerHTML = DESTINATIONS.map((d, i) => `<button class="dest" data-i="${i}">
+      <span class="dest-icon"><svg viewBox="0 0 24 24" aria-hidden="true">${d.icon}</svg></span>
+      <span class="dest-body"><b>${esc(d.title)}</b> <code>${esc(d.path)}</code><span>${esc(d.text)}</span></span>
+    </button>`).join("");
+  list.querySelectorAll(".dest").forEach((card) => {
+    const d = DESTINATIONS[Number(card.dataset.i)];
+    card.onclick = () => {
+      uploadFolder = d.folder;
+      $("#file").accept = d.accept;
+      $("#file").click();
+    };
+    card.addEventListener("dragover", (e) => { e.preventDefault(); card.classList.add("drop"); });
+    card.addEventListener("dragleave", () => card.classList.remove("drop"));
+    card.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      card.classList.remove("drop");
+      uploadFolder = d.folder;
+      if (e.dataTransfer.files.length && state.project) await uploadFiles([...e.dataTransfer.files]);
+    });
+  });
+}
+
+function openAddFiles() {
+  if (!state.project) return;
+  $("#addFilesNote").textContent = "";
+  $("#addFiles").hidden = false;
+}
+
+function closeAddFiles() {
+  $("#addFiles").hidden = true;
+}
+
 async function uploadFiles(files) {
-  const folder = $("#attachTo").value;
+  const folder = uploadFolder;
   const saved = [];
   for (const f of files) {
-    $("#busy").textContent = `Copying ${f.name}…`;
+    $("#busy").textContent = $("#addFilesNote").textContent = `Copying ${f.name}…`;
     const q = new URLSearchParams({ project: state.project, name: f.name, folder });
     const r = await api("/api/upload?" + q, { method: "POST", body: f });
     if (r.saved) saved.push(r.saved);
   }
   $("#busy").textContent = state.busy ? WORKING : "";
-  if (saved.length) setInput(`I added ${saved.join(", ")} to this project.`, true);
+  closeAddFiles();
+  if (saved.length) setInput(`I added ${saved.join(", ")} to this project.`);
   loadVideos();
 }
 
@@ -245,7 +297,11 @@ export function initChat() {
     if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); }
   });
   $("#input").addEventListener("input", autosize);
-  $("#attach").onclick = () => $("#file").click();
+  renderDestinations();
+  $("#attach").onclick = openAddFiles;
+  $("#addFilesClose").onclick = closeAddFiles;
+  $("#addFiles").addEventListener("click", (e) => { if (e.target.id === "addFiles") closeAddFiles(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAddFiles(); });
   $("#file").onchange = async (e) => {
     const files = [...e.target.files];
     e.target.value = "";

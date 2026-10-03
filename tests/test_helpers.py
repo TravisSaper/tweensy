@@ -20,14 +20,16 @@ class HelperTest(unittest.TestCase):
         self.assertLessEqual(len(slugify("x" * 100)), 48)
 
     def test_render_note(self):
-        note_4k = render_note({"res": "4k", "fps": 60})
-        self.assertIn("4K at 60 fps", note_4k)
-        self.assertIn("--quality high --crf 12 --fps 60", note_4k)
-        self.assertIn("landscape-4k", note_4k)
-        note_hd = render_note({"res": "1080p", "fps": 30})
-        self.assertIn("1080p at 30 fps", note_hd)
-        self.assertIn("--fps 30", note_hd)
-        self.assertNotIn("landscape-4k", note_hd)
+        note_4k = render_note({"aspect": "16:9", "res": "4k", "fps": 60})
+        self.assertIn("4K (3840x2160) at 60 fps", note_4k)
+        self.assertIn("--quality high --crf 12 --fps 60 --resolution landscape-4k", note_4k)
+        note_square = render_note({"aspect": "1:1", "res": "4k", "fps": 24})
+        self.assertIn("--resolution square-4k", note_square)
+        self.assertIn("use 1:1 even if the message mentions another shape", note_square)
+        note_phone = render_note({"aspect": "9:16", "res": "1080p", "fps": 24})
+        self.assertIn("1080p (1080x1920) at 24 fps", note_phone)
+        self.assertIn("--fps 24", note_phone)
+        self.assertIn("render . --quality high --crf 12 --fps 24 -o", note_phone)  # no 4K flag at 1080p
 
     def test_read_render_progress(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -49,7 +51,7 @@ class HelperTest(unittest.TestCase):
         self.assertEqual(friendly_error("Something else broke"), "Something else broke")
 
     def test_render_note_writes_progress_log(self):
-        note = render_note({"res": "1080p", "fps": 30})
+        note = render_note({"aspect": "16:9", "res": "1080p", "fps": 24})
         self.assertIn("| tee .tweensy/render.log", note)
         self.assertIn("don't run it in the background", note)
 
@@ -60,9 +62,11 @@ class HelperTest(unittest.TestCase):
         self.assertIsNone(describe_tool("TodoWrite", {}))
 
     def test_clean_export(self):
-        self.assertEqual(clean_export({"res": "1080p", "fps": "30"}), {"res": "1080p", "fps": 30})
-        self.assertEqual(clean_export(None), {"res": "4k", "fps": 60})
-        self.assertEqual(clean_export({"res": "8k", "fps": 999}), {"res": "4k", "fps": 60})
+        self.assertEqual(clean_export({"aspect": "9:16", "res": "1080p", "fps": "24"}), {"aspect": "9:16", "res": "1080p", "fps": 24})
+        self.assertEqual(clean_export(None), {"aspect": "16:9", "res": "4k", "fps": 60})
+        self.assertEqual(clean_export({"res": "8k", "fps": 999}), {"aspect": "16:9", "res": "4k", "fps": 60})
+        # projects saved before 30 fps was replaced move to 24 fps
+        self.assertEqual(clean_export({"res": "1080p", "fps": 30}), {"aspect": "16:9", "res": "1080p", "fps": 24})
 
     def test_failure_message(self):
         self.assertIn("isn't signed in", failure_message("Invalid API key · Please run /login"))

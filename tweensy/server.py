@@ -122,6 +122,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(SECTIONS)
         if url.path == "/api/status":
             return self.send_json(system.check_setup())
+        if url.path == "/api/settings":
+            return self.send_json({"port": config.PORT, "saved_port": config.saved_port()})
         if url.path == "/api/projects":
             return self.send_json(projects.list_projects())
 
@@ -159,6 +161,11 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"name": projects.create_project(self.read_json().get("name", ""))})
         if url.path == "/api/stop":
             return self.send_json({"stopped": chat.stop(self.read_json().get("project"))})
+        if url.path == "/api/port":
+            try:
+                return self.send_json({"port": config.save_port(self.read_json().get("port"))})
+            except (TypeError, ValueError):
+                return self.send_json({"error": "Pick a port from 1024 to 65535."}, 400)
         if url.path == "/api/upload":
             return self.handle_upload(parse_qs(url.query))
         if len(parts) == 4 and parts[:2] == ["api", "projects"] and parts[3] == "export":
@@ -225,7 +232,16 @@ class Handler(BaseHTTPRequestHandler):
         turn.stream(emit)
 
 
+START_CMD = "tweensy" if config.FROZEN else "python3 app.py"
+
+
 def main():
+    if "--port" in sys.argv:  # `tweensy --port 9000` saves it as the new default
+        try:
+            config.PORT = config.save_port(sys.argv[sys.argv.index("--port") + 1])
+        except (IndexError, ValueError):
+            sys.exit(f"Usage: {START_CMD} --port 9000   (a number from 1024 to 65535)")
+        print(f"  Saved: Tweensy will use port {config.PORT} from now on.")
     config.PROJECTS.mkdir(parents=True, exist_ok=True)
     write_runtime_files()
     url = f"http://localhost:{config.PORT}"
@@ -233,6 +249,7 @@ def main():
         server = ThreadingHTTPServer((config.HOST, config.PORT), Handler)
     except OSError:
         print(f"Port {config.PORT} is busy. Tweensy may already be running: {url}")
+        print(f"  If something else uses that port, start Tweensy on another one: {START_CMD} --port 9000")
         webbrowser.open(url)
         sys.exit(1)
     server.daemon_threads = True

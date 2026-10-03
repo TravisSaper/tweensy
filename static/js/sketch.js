@@ -6,6 +6,8 @@ import { $, esc, api } from "./util.js";
 import { state } from "./state.js";
 import { setInput } from "./guide.js";
 import { loadVideos } from "./videos.js";
+import { saveExport } from "./export.js";
+import { askText, confirmBox, notice } from "./dialog.js";
 
 const COLORS = { pen: "#1d1b2e", arrow: "#e11d48", text: "#2563eb" };
 const SIZES = { "16:9": [1600, 900], "9:16": [900, 1600] };
@@ -108,8 +110,8 @@ function addScene() {
   selectScene(index + 1);
 }
 
-function deleteScene(i) {
-  if (scenes[i].strokes.length && !confirm(`Delete scene ${i + 1}?`)) return;
+async function deleteScene(i) {
+  if (scenes[i].strokes.length && !(await confirmBox({ title: `Delete scene ${i + 1}?`, text: "Its drawing and note will be removed.", okText: "Delete", danger: true }))) return;
   scene().notes = $("#sceneNotes").value;
   scenes.splice(i, 1);
   index = Math.min(i <= index ? Math.max(index - 1, 0) : index, scenes.length - 1);
@@ -124,16 +126,16 @@ function pos(e) {
   return [((e.clientX - r.left) / r.width) * canvas.width, ((e.clientY - r.top) / r.height) * canvas.height];
 }
 
-function onDown(e) {
+async function onDown(e) {
   e.preventDefault();
-  canvas.setPointerCapture(e.pointerId);
   const p = pos(e);
   if (tool === "text") {
-    const text = prompt("Label (for example: Logo, 100, Title)");
-    if (text && text.trim()) scene().strokes.push({ type: "text", color: COLORS.text, width: 1, points: [p], text: text.trim() });
+    const text = await askText({ title: "Add a label", placeholder: "For example: Logo, 100, Title", okText: "Add" });
+    if (text) scene().strokes.push({ type: "text", color: COLORS.text, width: 1, points: [p], text });
     changed();
     return;
   }
+  canvas.setPointerCapture(e.pointerId);
   if (tool === "arrow") current = { type: "arrow", color: COLORS.arrow, width: 8, points: [p, p] };
   else if (tool === "eraser") current = { type: "line", color: "#ffffff", width: 48, points: [p] };
   else current = { type: "line", color: COLORS.pen, width: 6, points: [p] };
@@ -168,9 +170,9 @@ function setTool(name) {
   document.querySelectorAll("#sketchTools [data-tool]").forEach((b) => b.classList.toggle("on", b.dataset.tool === name));
 }
 
-function setAspect(name) {
+async function setAspect(name) {
   if (name === aspect) return;
-  if (scenes.some((s) => s.strokes.length) && !confirm("Changing the shape clears every scene. Continue?")) return;
+  if (scenes.some((s) => s.strokes.length) && !(await confirmBox({ title: `Switch to ${name}?`, text: "Changing the shape clears every scene.", okText: "Clear and switch", danger: true }))) return;
   aspect = name;
   [canvas.width, canvas.height] = SIZES[name];
   canvas.parentElement.dataset.aspect = name;
@@ -188,7 +190,7 @@ function storyboardMessage(saved) {
     return `Scene ${i + 1}: ${path}\n  Style & transition: ${notes || "(your choice: pick what fits)"}`;
   });
   const what = saved.length === 1 ? "my sketch" : `my ${saved.length}-scene storyboard (scenes play in this order)`;
-  return `Make a ${aspect} video from ${what}.
+  return `Make a video from ${what}.
 
 ${lines.join("\n")}
 
@@ -204,8 +206,8 @@ async function useStoryboard() {
   if (!state.project) return;
   scene().notes = $("#sceneNotes").value;
   const drawn = scenes.filter((s) => s.strokes.length);
-  if (!drawn.length) { alert("Draw at least one scene first."); return; }
-  if (drawn.length < scenes.length && !confirm("Some scenes are empty. Leave them out and continue?")) return;
+  if (!drawn.length) { await notice("Draw at least one scene first."); return; }
+  if (drawn.length < scenes.length && !(await confirmBox({ title: "Leave out empty scenes?", text: "Some scenes have no drawing. They'll be left out of the storyboard.", okText: "Continue" }))) return;
   scenes = drawn;
   index = Math.min(index, scenes.length - 1);
   const btn = $("#sketchUse");
@@ -223,10 +225,11 @@ async function useStoryboard() {
       saved.push(r.saved);
     }
     closeBoard();
+    if (state.exp.aspect !== aspect) await saveExport({ ...state.exp, aspect });
     setInput(storyboardMessage(saved));
     loadVideos();
   } catch (err) {
-    alert(err.message || err);
+    await notice(String(err.message || err), "Couldn't save the storyboard");
   } finally {
     btn.disabled = false;
     btn.textContent = "Use this storyboard";
@@ -259,8 +262,8 @@ export function initSketch() {
   document.querySelectorAll("#sketchTools [data-tool]").forEach((b) => (b.onclick = () => setTool(b.dataset.tool)));
   document.querySelectorAll("#sketchTools [data-aspect]").forEach((b) => (b.onclick = () => setAspect(b.dataset.aspect)));
   $("#sketchUndo").onclick = undo;
-  $("#sketchClear").onclick = () => {
-    if (!scene().strokes.length || confirm(`Clear scene ${index + 1}?`)) { scene().strokes = []; changed(); }
+  $("#sketchClear").onclick = async () => {
+    if (!scene().strokes.length || await confirmBox({ title: `Clear scene ${index + 1}?`, text: "Its drawing will be removed.", okText: "Clear", danger: true })) { scene().strokes = []; changed(); }
   };
   $("#sceneNotes").addEventListener("input", (e) => { scene().notes = e.target.value; });
   $("#sketchClose").onclick = closeBoard;

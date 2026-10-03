@@ -3,6 +3,7 @@ projects/
 
 # Generated at runtime / build time
 .runtime/
+settings.json
 dist/
 build/
 __pycache__/

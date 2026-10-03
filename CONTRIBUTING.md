@@ -46,8 +46,8 @@ Don't put render size or frame rate in an example: the Export picker adds those.
 
 | kind | UI | Button |
 | --- | --- | --- |
-| `prompt` | card | **Use this prompt** (replaces the chat box) |
-| `style` | card | **Add under my prompt** (appends) |
+| `prompt` | card | **Add this prompt** (adds to the chat box) |
+| `style` | card | **Add this style** (adds to the chat box) |
 | `tweak` / `move` | chip | fills the chat box with a one-line change |
 
 Each section has an `id`, and the bottom-nav menus in `static/js/guide.js` (`TABS`) group sections by

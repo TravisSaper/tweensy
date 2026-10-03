@@ -7,7 +7,7 @@ export const state = {
   selected: null,     // video path shown in the player
   videos: [],         // videos in the open project
   tab: "guide",       // left-panel menu
-  exp: { res: "4k", fps: 60 }, // export setting for the open project
+  exp: { aspect: "16:9", res: "4k", fps: 60 }, // export setting for the open project
 };
 
 export const MOBILE = window.matchMedia("(max-width: 1100px)");

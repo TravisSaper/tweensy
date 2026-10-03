@@ -21,8 +21,9 @@ SECTIONS = [
         "body": (
             "Describe the video you want. Claude builds it as a small web page and HyperFrames "
             "turns that page into a video file. Start from a prompt below, swap the parts in "
-            "[brackets] for your own, press Send, then ask for changes in plain words. Choose "
-            "1080p or 4K and 30 or 60 fps in the Export menu (or the badge next to Send)."
+            "[brackets] for your own, press Send, then ask for changes in plain words. Pick the "
+            "shape (16:9, 9:16 or square), 1080p or 4K, and 24 or 60 fps with the badge next to "
+            "Send or in the Export menu."
         ),
         "items": [],
     },
@@ -62,7 +63,7 @@ Finish with three short lists: already installed, installed now, and anything st
                 "kind": "prompt",
                 "id": "first-video",
                 "label": "Your first video",
-                "text": """What: a 6-second 16:9 video made with HyperFrames in this folder.
+                "text": """What: a 6-second video made with HyperFrames in this folder.
 
 Look: one frosted-glass card in the centre of a soft violet-to-teal gradient, with two slow-drifting light glows behind it so the glass effect shows. On the card:
 - a small uppercase grey label: HELLO WORLD
@@ -107,7 +108,7 @@ Output: renders/first.mp4. Before you tell me it's done, check a frame from the 
                 "kind": "prompt",
                 "id": "moves-demo",
                 "label": "Demo of all 10 moves",
-                "text": """What: a [14]-second 16:9 demo of 10 classic motion moves, one after another, each with a small caption naming it.
+                "text": """What: a [14]-second demo of 10 classic motion moves, one after another, each with a small caption naming it.
 
 The moves:
 - Rise: fade in while moving up a little
@@ -202,7 +203,8 @@ Output: renders/moves.mp4. Check that all 10 moves appear.""",
                 "kind": "prompt",
                 "id": "text-video",
                 "label": "Text-only video",
-                "text": """What: a [15]-second vertical (9:16) video made with HyperFrames in this folder, using only animated text. No footage.
+                "note": "Made for phones: pick 9:16 in the Export badge first.",
+                "text": """What: a [15]-second video made with HyperFrames in this folder, using only animated text. No footage.
 
 Script (use my words exactly, don't shorten or rewrite them):
 [Nobody reads a wall of text. So give them one line at a time. Make every line earn its spot. End with one clear next step.]
@@ -220,8 +222,8 @@ Output: renders/text.mp4.""",
                 "kind": "prompt",
                 "id": "product-video",
                 "label": "Product launch video",
-                "note": "Put a product.png in the project (Add files) to use your real product.",
-                "text": """What: a [12]-second 16:9 product launch video made with HyperFrames in this folder.
+                "note": "Put a product.png in the project (Add files → Project folder) to use your real product.",
+                "text": """What: a [12]-second product launch video made with HyperFrames in this folder.
 
 Product: [Brewly, an app that delivers fresh coffee beans on your schedule and learns which roasts you like].
 
@@ -242,8 +244,8 @@ Output: renders/product.mp4.""",
                 "kind": "prompt",
                 "id": "app-promo",
                 "label": "App promo from screenshots",
-                "note": "Add your app screenshots with Add files → into screenshots/.",
-                "text": """What: a [60]-second 16:9 promo for my app, made with HyperFrames in this folder.
+                "note": "Add your app screenshots with Add files → Screenshots.",
+                "text": """What: a [60]-second promo for my app, made with HyperFrames in this folder.
 
 App: [what it does, in one sentence].
 
@@ -262,7 +264,7 @@ Output: renders/promo.mp4.""",
                 "kind": "prompt",
                 "id": "own-video",
                 "label": "Graphics on your own video",
-                "note": "Add your video with Add files first, then put its file name in the brackets.",
+                "note": "Add your video with Add files → Project folder, then put its file name in the brackets.",
                 "text": """What: add motion graphics on top of my video [clip.mp4] in this folder, using HyperFrames.
 
 First, understand it:
@@ -321,7 +323,6 @@ Keep them well under any voice, then render again.""",
         "items": [
             {"kind": "tweak", "label": "ProRes MOV", "text": "Render it again as a ProRes 4444 MOV."},
             {"kind": "tweak", "label": "PNG frames", "text": "Also export it as a PNG frame sequence."},
-            {"kind": "tweak", "label": "24 fps film look", "text": "Render it again at 24 fps for a film look."},
             {"kind": "tweak", "label": "4K 120 fps", "text": "Render it again in 4K at 120 fps."},
             {
                 "kind": "prompt",

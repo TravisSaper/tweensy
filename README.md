@@ -36,7 +36,8 @@ as it happens, and the finished video plays right next to the chat.
 ## Features
 
 - 🧭 **Everything one tap away.** The bottom bar switches between **Guide**, **Examples**,
-  **Animations**, **Styles**, **Sketch**, **Export** and **Fix**, while the chat and your videos stay on screen.
+  **Animations**, **Styles**, **Sketch**, **Export**, **Fix** and **Settings**, while the chat and your videos stay on screen.
+  Click the open tab again (or the sidebar button) to slide the side panel away for a bigger chat.
 - ✨ **Examples that work first time.** First video, text-only, product launch, app promo from
   screenshots, and graphics on your own footage. Each is laid out as *What / Look / Timing / Output*,
   with **[brackets]** for the parts you swap.
@@ -46,7 +47,8 @@ as it happens, and the finished video plays right next to the chat.
 - 🎞️ **Animations as one-click chips.** Ten classic moves (rise, pop, count-up, typewriter, punch-in…)
   and quick changes (bouncier, calmer, bigger text, brand colours).
 - 🎨 **Four styles to stack under any example.** Bold Type, Frosted Glass, Paper Print and Neon Pop.
-- 🎚️ **Export picker.** Choose **1080p or 4K** and **30 or 60 fps** per project. Every render uses the
+- 🎚️ **Export picker.** Choose the **shape (16:9, 9:16 or square)**, **1080p or 4K** and **24 or 60 fps** per
+  project, in one click from the badge next to Send. Every render uses the
   highest quality setting. ProRes 4444, PNG frames, 24 fps and transparent overlays are one click away.
 - 💬 **Talk in plain words.** "Make the number bigger." Each project keeps its own conversation.
 - ⏱️ **Know when it's done.** A live card shows Planning → Building → Rendering → Checking with a
@@ -65,36 +67,84 @@ as it happens, and the finished video plays right next to the chat.
 > **You need:** a paid Claude plan (Pro, Max, Team or Enterprise) and [Claude Code](https://code.claude.com/docs)
 > signed in. The Setup screen walks you through anything that's missing.
 
-1. **Download** the file for your computer from the latest [release](../../releases/latest):
+### Just ask your agent
 
-   | Computer | Download | Open it | First time only |
-   | --- | --- | --- | --- |
-   | Windows | `Tweensy-windows-vX.Y.Z.exe` | double-click it | **More info** → **Run anyway** |
-   | Mac (Apple Silicon) | `Tweensy-mac-vX.Y.Z.dmg` | open it, double-click **Tweensy** | right-click **Tweensy** → **Open** |
-   | Linux | `Tweensy-linux-vX.Y.Z.tar.gz` | extract it, run `./tweensy` | — |
+Paste this into Claude Code (or any coding agent):
 
-2. Your browser opens **http://localhost:8765**. Keep the small terminal window open while you work.
-   Your projects are saved in a **Tweensy** folder in your home folder.
-3. Click **Make my first video**, swap in your name, press **Send**, and wait a few minutes.
+```text
+Install Tweensy for me by following https://raw.githubusercontent.com/TravisSaper/tweensy/main/docs/INSTALL.md
+```
 
-**From source** (any computer with Python 3.9+, including Intel Macs): clone the repo and double-click
+### Or install it yourself
+
+**Mac (Apple Silicon) or Linux**, in a terminal:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/TravisSaper/tweensy/main/install.sh | sh
+```
+
+**Windows**, in PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/TravisSaper/tweensy/main/install.ps1 | iex
+```
+
+Tweensy opens in your browser at **http://localhost:8765**. Next time, type `tweensy` (or use the
+Start menu on Windows). **To update, run the same command again.** Your projects live in a **Tweensy**
+folder in your home folder and are never touched by installing or updating.
+
+**Another port?** Add `TWEENSY_PORT` the first time:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/TravisSaper/tweensy/main/install.sh | TWEENSY_PORT=9000 sh
+```
+
+```powershell
+$env:TWEENSY_PORT = "9000"; irm https://raw.githubusercontent.com/TravisSaper/tweensy/main/install.ps1 | iex
+```
+
+Change it later in **Settings → Port**, or run `tweensy --port 9000`. Either way it's remembered.
+
+### Or download the app
+
+| Computer | Download from the latest [release](../../releases/latest) | Open it | First time only |
+| --- | --- | --- | --- |
+| Windows | `Tweensy-windows-vX.Y.Z.exe` | double-click it | **More info** → **Run anyway** |
+| Mac (Apple Silicon) | `Tweensy-mac-vX.Y.Z.dmg` | open it, double-click **Tweensy** | right-click **Tweensy** → **Open** |
+| Linux | `Tweensy-linux-vX.Y.Z.tar.gz` | extract it, run `./tweensy` | — |
+
+### Or run it from source
+
+Any computer with Python 3.9+, including Intel Macs: clone the repo and double-click
 `Start Tweensy.command` (Mac), `Start Tweensy.bat` (Windows) or `start.sh` (Linux), or run
-`python3 app.py`. Projects are then saved in the repo's `projects` folder.
+`python3 app.py` (add `--port 9000` for another port). Projects are then saved in the repo's
+`projects` folder.
+
+### Then
+
+Keep the small terminal window open while you work. Click **Make my first video**, swap in your name,
+press **Send**, and wait a few minutes.
 
 ## Export quality
 
-Pick it in the **Export** menu, or click the **4K · 60 fps** badge next to Send. Each project remembers
-its own choice.
+Click the **16:9 · 4K · 60 fps** badge next to Send for a quick pop-up, or open the **Export** menu.
+Each project remembers its own choice.
 
-| Setting | Output (16:9) | Render time for a 6 s video* | Good for |
-| --- | --- | --- | --- |
-| 1080p · 30 fps | 1920×1080 | ~8 s | quick drafts, checking an idea |
-| 1080p · 60 fps | 1920×1080 | ~10 s | smooth social posts |
-| 4K · 30 fps | 3840×2160 | ~25 s | sharp, standard motion |
-| **4K · 60 fps** (default) | 3840×2160 | ~45 s | the best quality there is |
+| Shape | 1080p | 4K |
+| --- | --- | --- |
+| **16:9** wide (default) | 1920×1080 | 3840×2160 |
+| **9:16** phone | 1080×1920 | 2160×3840 |
+| **1:1** square | 1080×1080 | 2160×2160 |
 
-<sub>*Measured on a 20-core laptop for the first-video example. Every setting renders with HyperFrames'
-`high` preset at CRF 12. Vertical videos come out at 1080×1920 or 2160×3840.</sub>
+| Quality · frame rate | Render time for a 6 s 16:9 video* | Good for |
+| --- | --- | --- |
+| 1080p · 24 fps | ~7 s | quick drafts, a cinematic feel |
+| 1080p · 60 fps | ~10 s | smooth social posts |
+| 4K · 24 fps | ~20 s | sharp, cinematic |
+| **4K · 60 fps** (default) | ~45 s | the best quality there is |
+
+<sub>*For the first-video example on a 20-core laptop: the 60 fps times are measured, the 24 fps times are
+estimates. Every setting renders with HyperFrames' `high` preset at CRF 12.</sub>
 
 ## Storyboard it, Claude builds it
 
@@ -136,7 +186,7 @@ Reopened the page mid-run? It picks the progress back up and updates when the ru
     <td width="50%"><img src="docs/screenshots/styles.png" alt="Styles menu, with a product-launch example and the Neon Pop style stacked in the chat box"></td>
   </tr>
   <tr>
-    <td align="center"><b>Export.</b> 1080p or 4K, 30 or 60 fps, plus special formats.</td>
+    <td align="center"><b>Export.</b> Shape, 1080p or 4K, 24 or 60 fps, plus special formats.</td>
     <td align="center"><b>Styles.</b> Stack a style under any example.</td>
   </tr>
   <tr>
@@ -155,7 +205,7 @@ Reopened the page mid-run? It picks the progress back up and updates when the ru
   <img src="docs/screenshots/mobile-videos.png" alt="Videos on a phone-sized screen" width="240">
   &nbsp;
   <img src="docs/screenshots/mobile-export.png" alt="Export picker on a phone-sized screen" width="240"><br>
-  <sub>On small screens the bottom bar switches the whole view: Chat · Videos · Guide · Examples · Animations · Styles · Sketch · Export · Fix.</sub>
+  <sub>On small screens the bottom bar switches the whole view: Chat · Videos · Guide · Examples · Animations · Styles · Sketch · Export · Fix · Settings.</sub>
 </p>
 
 ## How it works
@@ -214,7 +264,7 @@ tweensy/
 | What | How |
 | --- | --- |
 | Export quality | **Export** menu in the app (saved per project) |
-| Port | `TWEENSY_PORT=9000 python3 app.py` (Windows: `set TWEENSY_PORT=9000` then `py app.py`) |
+| Port | **Settings → Port** in the app, or `tweensy --port 9000` / `python3 app.py --port 9000` (saved in `settings.json`). `TWEENSY_PORT=9000` picks one for a single run. |
 | Don't open a browser | `python3 app.py --no-browser` |
 | What Claude may run | `ALLOWED_TOOLS` in `tweensy/claude.py` |
 | Claude's instructions and quality bar | `SYSTEM_NOTE` in `tweensy/claude.py` |
@@ -225,7 +275,7 @@ tweensy/
 
 ```sh
 python3 app.py --no-browser                 # run from source
-python3 -m unittest discover -s tests -v    # 23 tests, ~1 s, no Claude Code needed
+python3 -m unittest discover -s tests -v    # 24 tests, ~2 s, no Claude Code needed
 pip install pyinstaller && python3 scripts/build_app.py   # build the app for this computer
 ```
 
@@ -241,6 +291,13 @@ to check it works, and attaches `Tweensy-windows-v2.5.0.exe`, `Tweensy-mac-v2.5.
 
 Open it. Every red item has the exact command for your computer and a **Copy** button. After
 installing something, close Tweensy's terminal window, start it again, and press **Check again**.
+</details>
+
+<details>
+<summary><b>"Port 8765 is busy"</b></summary>
+
+Tweensy may already be open: check your browser. If another app uses that port, start Tweensy on
+another one with `tweensy --port 9000` (from source: `python3 app.py --port 9000`). It remembers it.
 </details>
 
 <details>
@@ -260,7 +317,7 @@ limit resets (the message says when), open the same project and say **continue**
 <details>
 <summary><b>Renders take a long time</b></summary>
 
-4K at 60 fps is about 8× the work of 1080p at 30 fps. Switch the **Export** menu to 1080p · 30 while
+4K at 60 fps is about 10× the work of 1080p at 24 fps. Switch the badge to 1080p · 24 while
 you try ideas, then switch back and say "render again" for the final version.
 </details>
 
