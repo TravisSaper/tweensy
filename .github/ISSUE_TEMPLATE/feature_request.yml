@@ -1,0 +1,15 @@
+name: Feature idea
+description: Something that would make Tweensy better
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: Describe it the way you'd explain it to a friend. What would you use it for?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: What do you do today instead?

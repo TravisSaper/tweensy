@@ -1,0 +1,30 @@
+name: Bug report
+description: Something doesn't work the way it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead. Screenshots help.
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Computer
+      options: [macOS, Windows, Linux]
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Open Setup and copy what it shows (Tweensy, Claude Code, Node, Python).
+      placeholder: "Tweensy 1.1.0, Claude Code 2.1.x, Node v22, Python 3.12"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error text
+      description: Anything red in the chat, or text from the Tweensy terminal window.
+      render: text

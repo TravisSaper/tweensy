@@ -1,0 +1,100 @@
+# Changelog
+
+All notable changes to Tweensy (called Motion Studio before 2.4.0). Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+versions: [SemVer](https://semver.org/).
+
+## [Unreleased]
+
+## [2.6.0] - 2026-10-03
+
+First public release.
+
+### Changed
+- Four new, original style presets: **Bold Type**, **Frosted Glass**, **Paper Print** and **Neon Pop**,
+  each with its own fonts (downloaded from Google Fonts on first use), colours and motion rules.
+
+## [2.5.0] - 2026-10-03
+
+### Added
+- Ready-to-run downloads in every release, one per computer: `Tweensy-windows-vX.Y.Z.exe`,
+  `Tweensy-mac-vX.Y.Z.dmg` (Apple Silicon) and `Tweensy-linux-vX.Y.Z.tar.gz`. No Python needed.
+  Each is built and smoke-tested on its own OS by the release workflow.
+- Downloaded apps keep projects in a `Tweensy` folder in your home folder.
+
+### Changed
+- Releases no longer include a single zip; running from source is unchanged.
+
+### Fixed
+- Programs started by a downloaded Linux app (Claude Code, Node, FFmpeg) get the system's library
+  path back instead of the app's bundled one.
+
+## [2.4.0] - 2026-10-03
+
+### Changed
+- Renamed **Motion Studio → Tweensy**: app name, page, launchers (`Start Tweensy.command` / `.bat`),
+  the `tweensy` Python package, the zip (`Tweensy-vX.Y.Z.zip`), the GitHub repo, and the port setting
+  (`TWEENSY_PORT`). Render progress now goes to `.tweensy/render.log`.
+- New screenshots and demo video.
+
+## [2.3.0] - 2026-10-03
+
+### Changed
+- The drawing board is now a **storyboard**: a scene strip with thumbnails, **+ Add scene**, delete,
+  and an optional **style & transition** note under each scene. **Use this storyboard** saves one
+  image per scene and lists them in order with their notes.
+- Claude is told to look at every scene first and, only if one is genuinely unclear, ask short
+  numbered questions and wait instead of guessing.
+
+## [2.2.0] - 2026-10-03
+
+### Added
+- **Sketch** menu with a drawing board (16:9 or 9:16): pen for layout, red arrows for motion (numbers
+  give the order), blue text labels, eraser, undo (Ctrl+Z), clear, and a notes box. **Use this sketch**
+  saves the drawing to `sketches/` and fills the chat box with a message explaining how to read it.
+- Claude's instructions now say to open any sketch image before planning.
+
+## [2.1.1] - 2026-10-03
+
+### Changed
+- Reorganised the code into a `motion_studio` package (server, chat, claude, export, progress,
+  projects, system, config, guide) and split the page into `index.html`, `css/styles.css` and
+  ES modules in `static/js/`. `python3 app.py` and the launchers work exactly as before.
+- Tests split into `tests/test_server.py` and `tests/test_helpers.py`, with new checks for the page's
+  CSS/JS files.
+
+## [2.1.0] - 2026-10-03
+
+### Added
+- Live status card on every reply: Planning → Building → Rendering → Checking, with a timer.
+- Real render progress bar with time left, read from HyperFrames' own output
+  (`.motion-studio/render.log`, written via `tee` by every render).
+- Clear finish: green "Done in m:ss · renders/x.mp4 is ready", tab title, and a desktop notification
+  when the tab isn't focused.
+- Reopening a project mid-run shows the live card and refreshes when the run finishes.
+
+### Fixed
+- Errors that stopped Claude early (such as the plan's usage limit) were hidden. They're now shown in
+  plain words, with when the limit resets and to say "continue".
+
+## [2.0.0] - 2026-10-02
+
+First release.
+
+### Added
+- Local web app that turns plain-language requests into HyperFrames videos through your own
+  signed-in Claude Code, with one conversation per project.
+- Bottom navigation bar: **Guide**, **Examples**, **Animations**, **Styles**, **Export**, **Fix**
+  (plus **Chat** and **Videos** on small screens).
+- Examples written as *What / Look / Timing / Output* with **[brackets]** for the parts you swap:
+  first video, 10-moves demo, text-only, product launch, app promo from screenshots, graphics on your
+  own footage, change one moment, sound effects, transparent overlay.
+- Four style presets to stack under any example.
+- **Export picker** per project: 1080p or 4K, 30 or 60 fps. Every render uses `--quality high --crf 12`.
+  The setting is sent with each message, and the composer badge shows it.
+- Quality bar for Claude: deliberate easing, depth, crisp text, and checking frames from every
+  finished render before replying.
+- Live step feed, streaming replies, Stop, file uploads, and a video player that shows the real resolution.
+- First-run Setup checklist (Claude Code, sign-in, Node.js 22+, FFmpeg, HyperFrames skills,
+  whisper-cpp) with per-OS commands and a **Set up my computer** button.
+- macOS, Windows and Linux launchers. Tests, CI on three OSes, a tag-driven release workflow,
+  and `make_zip.py`.

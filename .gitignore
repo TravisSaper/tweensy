@@ -1,0 +1,15 @@
+# Your own work and chat history stay on your computer
+projects/
+
+# Generated at runtime / build time
+.runtime/
+dist/
+build/
+__pycache__/
+*.pyc
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

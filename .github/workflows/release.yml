@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+      - name: Check version matches tag
+        run: |
+          v=$(python -c "import tweensy; print(tweensy.__version__)")
+          test "v$v" = "${GITHUB_REF_NAME}" || { echo "tweensy.__version__ is $v but tag is ${GITHUB_REF_NAME}"; exit 1; }
+
+  build:
+    name: Build (${{ matrix.os }})
+    needs: check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pyinstaller
+      - name: Build the app
+        run: python scripts/build_app.py
+      - name: Smoke test (start it, load the page, call the API)
+        shell: bash
+        run: python scripts/smoke_test.py "dist/tweensy$([ "$RUNNER_OS" = Windows ] && echo .exe)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tweensy-${{ matrix.os }}
+          path: dist/release/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: files
+          merge-multiple: true
+      - name: Release notes from CHANGELOG
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          awk -v v="$v" '$0 ~ "^## \\[" v "\\]" {on=1; next} /^## \[/ {on=0} on' CHANGELOG.md > notes.md
+          cat >> notes.md <<'NOTES'
+
+          ### Downloads
+          - **Windows:** `Tweensy-windows-…exe`. Double-click it. If Windows warns, click **More info → Run anyway**.
+          - **Mac (Apple Silicon):** `Tweensy-mac-…dmg`. Open it, then right-click **Tweensy → Open** the first time.
+          - **Linux:** `Tweensy-linux-…tar.gz`. Extract it and run `./tweensy`.
+
+          You still need Claude Code signed in to your Claude plan; the Setup screen walks you through it.
+          NOTES
+          cat notes.md
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la files
+          gh release create "${GITHUB_REF_NAME}" files/* --title "Tweensy ${GITHUB_REF_NAME}" --notes-file notes.md

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tweensy</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">▶</div>Tweensy</div>
+  <div class="proj">
+    <label for="project">Project</label>
+    <select id="project"></select>
+    <button class="btn" id="newProject">+ New project</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="setupBtn"><span class="dot" id="setupDot"></span><span id="setupLabel">Setup</span></button>
+</header>
+
+<div class="overlay" id="setup" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+    <div class="modal-head">
+      <h3 id="setupTitle">Set up this computer</h3>
+      <button class="btn small" id="setupClose" aria-label="Close">Close</button>
+    </div>
+    <p class="hint">Tweensy uses Claude Code with your own Claude plan (Pro or Max). Do the steps that aren't ticked yet, then press Check again.</p>
+    <ol class="checklist" id="checklist"></ol>
+    <div class="modal-foot">
+      <button class="btn primary" id="recheck">Check again</button>
+      <span class="hint" id="recheckNote"></span>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="sketch" hidden>
+  <div class="modal board" role="dialog" aria-modal="true" aria-labelledby="sketchTitle">
+    <div class="modal-head">
+      <h3 id="sketchTitle">Storyboard</h3>
+      <button class="btn small" id="sketchClose" aria-label="Close">Close</button>
+    </div>
+    <div class="scene-strip" id="sceneStrip"></div>
+    <div class="board-tools" id="sketchTools">
+      <button class="btn small" data-tool="pen"><span class="swatch" style="background:#1d1b2e"></span>Pen</button>
+      <button class="btn small" data-tool="arrow"><span class="swatch" style="background:#e11d48"></span>Arrow</button>
+      <button class="btn small" data-tool="text"><span class="swatch" style="background:#2563eb"></span>Text</button>
+      <button class="btn small" data-tool="eraser">Eraser</button>
+      <button class="btn small" id="sketchUndo">Undo</button>
+      <button class="btn small" id="sketchClear">Clear scene</button>
+      <span class="spacer"></span>
+      <button class="btn small on" data-aspect="16:9">16:9</button>
+      <button class="btn small" data-aspect="9:16">9:16</button>
+    </div>
+    <div class="board-canvas" data-aspect="16:9"><canvas id="sketchCanvas"></canvas></div>
+    <label class="scene-notes">
+      <span id="sceneNotesLabel">Scene 1: style &amp; transition (optional)</span>
+      <input id="sceneNotes" type="text" placeholder="e.g. Neon Pop style, slides in from the right, whip-pan into the next scene" />
+    </label>
+    <div class="board-foot">
+      <p class="hint">Black pen: what's on screen. Red arrows: how things move (write 1, 2, 3 for the order). Blue text: labels.</p>
+      <button class="btn primary" id="sketchUse">Use this storyboard</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section class="panel" id="guidePanel" data-view="guide">
+    <h2 id="guideTitle">Guide</h2>
+    <div class="scroll" id="guide"></div>
+  </section>
+
+  <section class="panel on" id="chatPanel" data-view="chat">
+    <h2>Chat with Claude <span class="spacer"></span><span id="busy" class="hint"></span></h2>
+    <div class="scroll" id="chatScroll"><div id="messages"></div></div>
+    <div class="composer">
+      <textarea id="input" rows="2" placeholder="Say what you want: “Make a 6-second video…” or “Make the number bigger”"></textarea>
+      <div class="bar">
+        <button class="btn primary" id="send">Send</button>
+        <button class="btn" id="stop" hidden>Stop</button>
+        <button class="btn" id="attach" title="Copy your own files (video, images, fonts) into this project">Add files</button>
+        <select id="attachTo" title="Where the files go">
+          <option value="">into the project</option>
+          <option value="screenshots">into screenshots/</option>
+          <option value="fonts">into fonts/</option>
+          <option value="sfx">into sfx/</option>
+        </select>
+        <input type="file" id="file" multiple hidden />
+        <span class="spacer"></span>
+        <button class="badge" id="exportBadge" title="Export quality for this project (click to change)">
+          <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg><span id="exportLabel">4K · 60 fps</span>
+        </button>
+      </div>
+      <div class="hint" style="margin-top:6px">Enter to send · Shift+Enter for a new line</div>
+    </div>
+  </section>
+
+  <section class="panel" id="videoPanel" data-view="videos">
+    <h2>Videos <span class="spacer"></span><button class="btn small" id="refresh">Refresh</button></h2>
+    <div class="player" id="player"></div>
+    <div class="scroll vlist" id="videos"></div>
+    <div class="folder" id="folder"></div>
+  </section>
+</main>
+
+<nav class="bottom" id="nav" aria-label="Menus"></nav>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
