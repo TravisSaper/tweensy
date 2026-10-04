@@ -160,3 +160,11 @@ nav.bottom button svg { width: 19px; height: 19px; }
 .pending-comments { font-size: 13px; background: var(--elevated); border: 1px solid var(--line); border-left: 3px solid var(--action); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; }
 .pending-comments ul { margin: 4px 0; padding-left: 18px; color: var(--muted); }
 .pending-comments .link-btn { color: var(--action-text); }
+
+/* ---------- top bar: the open project's name is the title ---------- */
+#projPicker label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#project {
+  font-size: 16px; font-weight: 600; color: var(--text); background-color: transparent; border-color: transparent;
+  padding: 5px 8px; max-width: 46vw;
+}
+#project:hover, #project:focus-visible { border-color: var(--line); background-color: var(--panel-2); }
