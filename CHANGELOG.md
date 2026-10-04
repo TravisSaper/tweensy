@@ -8,6 +8,14 @@ versions: [SemVer](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- **Render versions:** every render is saved as its own `renders/vNNN.mp4` with its prompt, time, length,
+  size and fps. Creations lists them as "v3 · longer pause after reconnect"; play any version, **Restore**
+  an older one (its source files come back too), or tick two and **Compare** them side by side.
+- **Review in the chat:** each reply that rendered shows its video right under it. Click the comment bar
+  under the video to pin a note to that moment; notes go with your next message as `[07.6s] …`.
+- Suggestion chips come from Claude's latest reply, with its offered follow-up first.
+- Hover a style card to see a short looping preview of how that style moves.
+- **Open folder** button instead of the long project path.
 - **Sidebar** like Paperclip's: **New project**, **Dashboard** (the chat workspace), **Projects** and
   **Video library**, with the Setup status at the bottom. On phones it becomes a strip at the top.
 - **Projects** page: every project with its video count and whether Claude is working on it; click
@@ -21,6 +29,14 @@ versions: [SemVer](https://semver.org/).
   Assets folder yourself and they aren't copied at all.
 
 ### Changed
+- Claude's progress narration goes into the folded "What Claude did" list; the visible reply is only
+  what changed, the final length and settings, and any open question.
+- The project name is the top bar title; the chat column is wider with ~75-character lines, and its header
+  lines up with it when the side panel is closed.
+- **Settings** moved to the sidebar. The dock's **Export** tab is gone: shape, quality, frame rate and the
+  special formats all live in the badge next to Send. Download is only in Creations.
+- Styles can go before or after your request (the old "pick an example first" wording is gone); **Copy**
+  buttons say what they copy; text contrast meets WCAG AA in both themes.
 - **New look:** neutral grey light and dark themes, flatter panels with thin borders, smaller corners
   and text, and small uppercase panel labels. Everything you can click is **purple** now (it was blue);
   your own chat messages sit on a soft purple tint.
