@@ -5,6 +5,7 @@ assets/
 # Generated at runtime / build time
 .runtime/
 settings.json
+styles.json
 dist/
 build/
 __pycache__/

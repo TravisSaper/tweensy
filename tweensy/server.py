@@ -13,7 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
-from . import __version__, assets, chat, config, projects, system, versions
+from . import __version__, assets, chat, config, projects, styles, system, versions
 from .claude import write_runtime_files
 from .export import clean_export
 from .guide import SECTIONS
@@ -126,6 +126,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(system.check_setup())
         if url.path == "/api/settings":
             return self.send_json({"port": config.PORT, "saved_port": config.saved_port()})
+        if url.path == "/api/styles":
+            return self.send_json(styles.load())
         if url.path == "/api/assets":
             return self.send_json({"assets": assets.list_assets(), "folder": str(config.ASSETS)})
         if len(parts) == 2 and parts[0] == "assets":
@@ -181,6 +183,14 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"port": config.save_port(self.read_json().get("port"))})
             except (TypeError, ValueError):
                 return self.send_json({"error": "Pick a port from 1024 to 65535."}, 400)
+        if url.path == "/api/styles":
+            try:
+                return self.send_json(styles.save(self.read_json()))
+            except ValueError as err:
+                return self.send_json({"error": str(err)}, 400)
+        if url.path == "/api/styles/delete":
+            ok = styles.delete(self.read_json().get("id"))
+            return self.send_json({"deleted": ok}, 200 if ok else 404)
         if url.path == "/api/assets/add":
             return self.handle_add_asset(self.read_json())
         if url.path == "/api/upload":

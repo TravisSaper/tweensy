@@ -315,6 +315,24 @@ class ServerTest(unittest.TestCase):
         self.assertEqual((v["label"], v["prompt"]), ("longer pause", "Make the pause longer"))
         self.assertEqual(events[-1]["kind"], "done")
 
+    def test_your_styles(self):
+        self.assertEqual(self.get_json("/api/styles"), (200, []))
+        status, made = self.post_json("/api/styles", {"label": "Sunset Grain", "note": "Warm film look",
+                                                       "text": "- Font: Fraunces\n- Colours: amber and plum"})
+        self.assertEqual((status, made["id"]), (200, "my-sunset-grain"))
+        self.assertTrue(made["text"].startswith("STYLE: Sunset Grain\n- Font: Fraunces"))
+        # Same name again gets its own id; editing by id keeps it.
+        self.assertEqual(self.post_json("/api/styles", {"label": "Sunset Grain", "text": "x"})[1]["id"], "my-sunset-grain-2")
+        status, edited = self.post_json("/api/styles", {"id": "my-sunset-grain", "label": "Sunset Grain II",
+                                                         "text": "STYLE: old name\n- Motion: slow"})
+        self.assertEqual(edited["text"], "STYLE: Sunset Grain II\n- Motion: slow")
+        self.assertEqual([s["id"] for s in self.get_json("/api/styles")[1]], ["my-sunset-grain", "my-sunset-grain-2"])
+        for bad in ({"label": "", "text": "x"}, {"label": "x" * 41, "text": "x"}, {"label": "ok", "text": ""}):
+            self.assertEqual(self.post_json("/api/styles", bad)[0], 400, bad)
+        self.assertEqual(self.post_json("/api/styles/delete", {"id": "my-sunset-grain-2"}), (200, {"deleted": True}))
+        self.assertEqual(self.post_json("/api/styles/delete", {"id": "nope"})[0], 404)
+        self.assertEqual(len(self.get_json("/api/styles")[1]), 1)
+
     def test_open_folder(self):
         name = self.make_project("openme")
         opened, real = [], system.open_folder
