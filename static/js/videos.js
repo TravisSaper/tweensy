@@ -3,11 +3,11 @@
 import { $, esc, api } from "./util.js";
 import { state } from "./state.js";
 
-function fmtSize(n) {
+export function fmtSize(n) {
   return n > 1e6 ? (n / 1e6).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1e3)) + " KB";
 }
 
-function fmtTime(t) {
+export function fmtTime(t) {
   return new Date(t * 1000).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
@@ -19,12 +19,13 @@ export async function loadVideos() {
     list.innerHTML = `<div class="hint" style="padding:8px 10px">Your renders will show up here.</div>`;
   } else {
     list.innerHTML = "";
-    state.videos.forEach((v) => {
+    state.videos.forEach((v, i) => {
       const b = document.createElement("button");
       b.className = "vitem" + (v.path === state.selected ? " active" : "");
       b.dataset.path = v.path;
-      b.innerHTML = `<span></span><span class="meta">${fmtSize(v.size)} · ${fmtTime(v.mtime)}</span>`;
-      b.firstChild.textContent = v.path;
+      b.innerHTML = `<video class="vthumb" muted preload="metadata" src="${esc(fileUrl(v.path))}#t=1"></video>
+        <span class="vname"></span><span class="meta">${i === 0 ? '<span class="latest">Latest</span> ' : ""}${fmtSize(v.size)} · ${fmtTime(v.mtime)}</span>`;
+      b.querySelector(".vname").textContent = v.path;
       b.onclick = () => selectVideo(v.path);
       list.appendChild(b);
     });

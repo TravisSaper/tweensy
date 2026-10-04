@@ -2,8 +2,10 @@
 
 import json
 import mimetypes
+import os
 import re
 import sys
+import tempfile
 import threading
 import webbrowser
 from http import HTTPStatus
@@ -11,7 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
-from . import __version__, chat, config, projects, system
+from . import __version__, assets, chat, config, projects, system
 from .claude import write_runtime_files
 from .export import clean_export
 from .guide import SECTIONS
@@ -124,8 +126,15 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(system.check_setup())
         if url.path == "/api/settings":
             return self.send_json({"port": config.PORT, "saved_port": config.saved_port()})
+        if url.path == "/api/assets":
+            return self.send_json({"assets": assets.list_assets(), "folder": str(config.ASSETS)})
+        if len(parts) == 2 and parts[0] == "assets":
+            asset = assets.find(parts[1])
+            return self.send_file(asset) if asset else self.send_json({"error": "Not found"}, 404)
         if url.path == "/api/projects":
-            return self.send_json(projects.list_projects())
+            # ponytail: counts videos by walking every project; cache it if people have hundreds
+            return self.send_json([{**p, "videos": len(projects.list_videos(config.PROJECTS / p["name"])),
+                                    "busy": chat.is_running(p["name"])} for p in projects.list_projects()])
 
         # /api/projects/<name>/history|videos
         if len(parts) == 4 and parts[:2] == ["api", "projects"]:
@@ -166,6 +175,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"port": config.save_port(self.read_json().get("port"))})
             except (TypeError, ValueError):
                 return self.send_json({"error": "Pick a port from 1024 to 65535."}, 400)
+        if url.path == "/api/assets/add":
+            return self.handle_add_asset(self.read_json())
         if url.path == "/api/upload":
             return self.handle_upload(parse_qs(url.query))
         if len(parts) == 4 and parts[:2] == ["api", "projects"] and parts[3] == "export":
@@ -189,15 +200,29 @@ class Handler(BaseHTTPRequestHandler):
         fname = Path((query.get("name") or [""])[0]).name
         if not pdir or not fname or fname.startswith("."):
             return self.send_json({"error": "Bad upload"}, 400)
-        sub = (query.get("folder") or [""])[0]
-        dest_dir = pdir
-        if sub:
-            if not re.fullmatch(r"[A-Za-z0-9_-]+", sub):
-                return self.send_json({"error": "Bad folder"}, 400)
-            dest_dir = pdir / sub
-            dest_dir.mkdir(exist_ok=True)
-        self.save_body(dest_dir / fname)
-        return self.send_json({"saved": (dest_dir / fname).relative_to(pdir).as_posix()})
+        dest_dir = folder_in(pdir, (query.get("folder") or [""])[0])
+        if not dest_dir:
+            return self.send_json({"error": "Bad folder"}, 400)
+        # Save once into the shared Assets folder, then link it into the project.
+        config.ASSETS.mkdir(parents=True, exist_ok=True)
+        fd, tmp = tempfile.mkstemp(dir=config.ASSETS, prefix=".upload-")
+        os.close(fd)
+        try:
+            self.save_body(Path(tmp))
+            asset, reused = assets.store(Path(tmp), fname)
+        finally:
+            Path(tmp).unlink(missing_ok=True)
+        assets.place(asset, dest_dir / fname)
+        return self.send_json({"saved": (dest_dir / fname).relative_to(pdir).as_posix(), "reused": reused})
+
+    def handle_add_asset(self, data):
+        pdir = projects.project_dir(data.get("project") or "")
+        asset = assets.find(data.get("name"))
+        dest_dir = folder_in(pdir, data.get("folder") or "") if pdir else None
+        if not asset or not dest_dir:
+            return self.send_json({"error": "Bad request"}, 400)
+        assets.place(asset, dest_dir / asset.name)
+        return self.send_json({"saved": (dest_dir / asset.name).relative_to(pdir).as_posix()})
 
     def handle_chat(self, data):
         name = data.get("project", "")
@@ -230,6 +255,16 @@ class Handler(BaseHTTPRequestHandler):
                     alive = False  # keep running so the reply is still saved
 
         turn.stream(emit)
+
+
+def folder_in(pdir, sub):
+    """The project folder or one plain sub-folder in it (made if missing), or None if the name is bad."""
+    if not sub:
+        return pdir
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", sub):
+        return None
+    (pdir / sub).mkdir(exist_ok=True)
+    return pdir / sub
 
 
 START_CMD = "tweensy" if config.FROZEN else "python3 app.py"

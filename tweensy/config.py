@@ -19,6 +19,7 @@ DATA = Path.home() / "Tweensy" if FROZEN else ROOT
 PROJECTS = DATA / "projects"
 STATE_DIR = PROJECTS / ".chats"  # chat history lives outside the project folders
 RUNTIME = DATA / ".runtime"      # generated settings for Claude Code
+ASSETS = DATA / "assets"          # one shared copy of every uploaded file
 SETTINGS = DATA / "settings.json"  # choices you saved, like {"port": 9000}
 
 

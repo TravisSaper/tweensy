@@ -71,4 +71,8 @@ def list_videos(pdir):
             st = f.stat()
             out.append({"path": rel.as_posix(), "size": st.st_size, "mtime": st.st_mtime})
     out.sort(key=lambda x: -x["mtime"])
+    # The prompt behind each video: the last message you sent before it was saved.
+    asks = [(m.get("t", 0), m["text"]) for m in load_state(pdir).get("history", []) if m.get("role") == "user"]
+    for v in out:
+        v["prompt"] = next((text for t, text in reversed(asks) if t <= v["mtime"]), "")
     return out

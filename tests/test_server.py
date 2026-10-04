@@ -4,6 +4,7 @@
 """
 
 import json
+import os
 import shutil
 import sys
 import tempfile
@@ -16,7 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tweensy import __version__, claude, config  # noqa: E402
+from tweensy import __version__, claude, config, projects  # noqa: E402
 from tweensy.guide import SECTIONS  # noqa: E402
 from tweensy.server import Handler  # noqa: E402
 
@@ -31,6 +32,7 @@ class ServerTest(unittest.TestCase):
         config.RUNTIME = cls.tmp / ".runtime"
         config.DATA = cls.tmp
         config.SETTINGS = cls.tmp / "settings.json"
+        config.ASSETS = cls.tmp / "assets"
         config.PROJECTS.mkdir()
         claude.write_runtime_files()
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
@@ -180,6 +182,58 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(body, payload[10:20])
         self.assertEqual(headers["Content-Range"], f"bytes 10-19/{len(payload)}")
         self.assertEqual(headers["Content-Type"], "video/mp4")
+
+    def test_video_prompt_and_project_counts(self):
+        name = self.make_project("prompts")
+        pdir = config.PROJECTS / name
+        (pdir / "renders").mkdir()
+        video = pdir / "renders" / "a.mp4"
+        video.write_bytes(b"x")
+        made = video.stat().st_mtime
+        state = {"session_id": None, "history": [
+            {"role": "user", "text": "first ask", "t": made - 60},
+            {"role": "user", "text": "the one that made it", "t": made - 5},
+            {"role": "user", "text": "asked afterwards", "t": made + 60},
+        ]}
+        projects.save_state(pdir, state)
+        _, videos = self.get_json(f"/api/projects/{name}/videos")
+        self.assertEqual(videos[0]["prompt"], "the one that made it")
+        _, listed = self.get_json("/api/projects")
+        row = next(p for p in listed if p["name"] == name)
+        self.assertEqual((row["videos"], row["busy"]), (1, False))
+
+    def test_uploads_share_one_copy(self):
+        a, b, c = (self.make_project(n) for n in ("share-a", "share-b", "share-c"))
+        logo = b"logo-bytes" * 500
+
+        def upload(project, data, name="logo.png", folder=""):
+            q = f"/api/upload?project={project}&name={name}&folder={folder}"
+            status, _, body = self.request(q, data, method="POST")
+            return status, json.loads(body)
+
+        self.assertEqual(upload(a, logo), (200, {"saved": "logo.png", "reused": False}))
+        self.assertEqual(upload(b, logo, folder="screenshots"), (200, {"saved": "screenshots/logo.png", "reused": True}))
+        fa, fb = config.PROJECTS / a / "logo.png", config.PROJECTS / b / "screenshots" / "logo.png"
+        self.assertEqual(fa.read_bytes(), logo)
+        self.assertTrue(os.path.samefile(fa, fb))  # one file on disk, two names
+        self.assertEqual([x.name for x in config.ASSETS.iterdir() if x.name.startswith("logo")], ["logo.png"])
+
+        # Same name, different picture: kept separately.
+        upload(a, b"another picture")
+        _, listed = self.get_json("/api/assets")
+        self.assertEqual(sorted(x["name"] for x in listed["assets"] if x["name"].startswith("logo")), ["logo-2.png", "logo.png"])
+        self.assertEqual((config.PROJECTS / a / "logo.png").read_bytes(), b"another picture")
+        self.assertEqual(fb.read_bytes(), logo)  # the other project's copy is untouched
+
+        # Add from Your uploads, no new upload.
+        status, body = self.post_json("/api/assets/add", {"project": c, "name": "logo.png", "folder": "fonts"})
+        self.assertEqual((status, body["saved"]), (200, "fonts/logo.png"))
+        self.assertTrue(os.path.samefile(fb, config.PROJECTS / c / "fonts" / "logo.png"))
+        for bad in ({"project": c, "name": "../settings.json"}, {"project": c, "name": "logo.png", "folder": "../x"},
+                    {"project": "nope", "name": "logo.png"}):
+            self.assertEqual(self.post_json("/api/assets/add", bad)[0], 400, bad)
+        self.assertEqual(self.request("/assets/logo.png")[0], 200)
+        self.assertEqual(self.request("/assets/..%2Fsettings.json")[0], 404)
 
     def test_upload_rejects_bad_names(self):
         name = self.make_project("badnames")

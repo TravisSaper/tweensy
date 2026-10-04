@@ -10,6 +10,7 @@ import { initChat } from "./chat.js";
 import { initVideos } from "./videos.js";
 import { initSketch } from "./sketch.js";
 import { initDialog } from "./dialog.js";
+import { initLibrary } from "./library.js";
 
 initExport();
 initSetup();
@@ -19,6 +20,7 @@ initVideos();
 initSketch();
 initDialog();
 buildNav();
+initLibrary();
 
 state.guide = await api("/api/guide");
 let tab = "guide";

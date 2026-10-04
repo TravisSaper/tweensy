@@ -1,5 +1,6 @@
 # Your own work and chat history stay on your computer
 projects/
+assets/
 
 # Generated at runtime / build time
 .runtime/

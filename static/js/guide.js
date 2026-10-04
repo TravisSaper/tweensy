@@ -24,21 +24,24 @@ const ICON = {
 
 // Each menu shows these guide sections (ids from tweensy/guide.py).
 export const TABS = [
-  { id: "guide", label: "Guide", sections: ["start", "setup", "first"], intro: "Start here: how it works, setup, and your first video." },
-  { id: "examples", label: "Examples", sections: ["make", "polish"], intro: "Ready-made requests. Swap the [brackets] for your own." },
-  { id: "animations", label: "Animations", sections: ["moves", "change"], intro: "Motion moves and quick changes. Click one, then finish the sentence." },
-  { id: "styles", label: "Styles", sections: ["styles"], intro: "Pick an example first, then add a style underneath it." },
-  { id: "sketch", label: "Sketch", sections: [], intro: "Storyboard your video scene by scene. Claude turns it into a finished animation." },
-  { id: "export", label: "Export", sections: ["export"], intro: "Choose quality for this project, or export a special format." },
-  { id: "fix", label: "Fix", sections: ["fix"], intro: "Something looks off? Click the problem." },
-  { id: "settings", label: "Settings", sections: [], intro: "How Tweensy looks and where it runs." },
+  { id: "guide", group: "create", label: "Guide", sections: ["start", "setup", "first"], intro: "Start here: how it works, setup, and your first video." },
+  { id: "examples", group: "create", label: "Examples", sections: ["make", "polish"], intro: "Ready-made requests. Swap the [brackets] for your own." },
+  { id: "animations", group: "refine", label: "Animations", sections: ["moves", "change"], intro: "Motion moves and quick changes. Click one, then finish the sentence." },
+  { id: "styles", group: "create", label: "Styles", sections: ["styles"], intro: "Pick an example first, then add a style underneath it." },
+  { id: "sketch", group: "create", label: "Sketch", sections: [], intro: "Storyboard your video scene by scene. Claude turns it into a finished animation." },
+  { id: "export", group: "finish", label: "Export", sections: ["export"], intro: "Choose quality for this project, or export a special format." },
+  { id: "fix", group: "refine", label: "Fix", sections: ["fix"], intro: "Something looks off? Click the problem." },
+  { id: "settings", group: "finish", label: "Settings", sections: [], intro: "How Tweensy looks and where it runs." },
   { id: "chat", label: "Chat", mobile: true },
-  { id: "videos", label: "Videos", mobile: true },
+  { id: "videos", label: "Creations", mobile: true },
 ];
 
 export function buildNav() {
+  // Grouped visually (create · refine · finish); order within TABS is unchanged.
+  const order = ["create", "refine", "finish"];
+  const tabs = [...TABS].sort((a, b) => order.indexOf(a.group) - order.indexOf(b.group));
   $("#nav").innerHTML = '<span class="nav-pill" aria-hidden="true"></span>' +
-    TABS.map((t) => `<button data-tab="${t.id}" class="${t.mobile ? "mobile-only" : ""}" aria-label="${t.label}">
+    tabs.map((t, i) => (i && t.group && tabs[i - 1].group && t.group !== tabs[i - 1].group ? '<span class="nav-sep" aria-hidden="true"></span>' : "") + `<button data-tab="${t.id}" class="${t.mobile ? "mobile-only" : ""}" aria-label="${t.label}">
       <svg viewBox="0 0 24 24" aria-hidden="true">${ICON[t.id]}</svg>${t.label}</button>`).join("");
   $("#nav").querySelectorAll("button").forEach((b) => (b.onclick = () => onNavClick(b.dataset.tab)));
   $("#sidebarToggle").onclick = () => setSidebar(!sidebarOpen());
@@ -168,8 +171,10 @@ function renderSection(sec) {
 function renderCard(it) {
   const isStyle = it.kind === "style";
   const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `<div class="lbl">${esc(it.label)}</div>
+  card.className = "card" + (isStyle ? " style-card" : "");
+  if (isStyle) card.dataset.style = it.label.toLowerCase().replace(/[^a-z]+/g, "-");
+  card.innerHTML = `${isStyle ? `<div class="style-swatch" aria-hidden="true"><span>${esc(it.label)}</span></div>` : ""}
+    <div class="lbl">${esc(it.label)}</div>
     ${it.note ? `<div class="note">${esc(it.note)}</div>` : ""}
     <div class="preview">${esc(it.text)}</div>
     <div class="row"></div>`;

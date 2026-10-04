@@ -5,6 +5,26 @@ versions: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [Unreleased]
+
+### Added
+- **Sidebar** like Paperclip's: **New project**, **Dashboard** (the chat workspace), **Projects** and
+  **Video library**, with the Setup status at the bottom. On phones it becomes a strip at the top.
+- **Projects** page: every project with its video count and whether Claude is working on it; click
+  one to open it.
+- **Video library:** click a project to drop down its videos, newest first, each with a thumbnail and
+  the prompt that made it. Click a video and it grows into the middle of the screen and plays, with
+  its prompt above (three lines, then **Show more**). Esc or a click outside sends it back.
+- **No more duplicate uploads:** every file you add is kept once in an **Assets** folder (`~/Tweensy/assets`)
+  and linked into each project that uses it, so the same logo in ten projects takes the space of one.
+  **Add files** lists **Your uploads** to add to a project without uploading again. Move files into the
+  Assets folder yourself and they aren't copied at all.
+
+### Changed
+- **New look:** neutral grey light and dark themes, flatter panels with thin borders, smaller corners
+  and text, and small uppercase panel labels. Everything you can click is **purple** now (it was blue);
+  your own chat messages sit on a soft purple tint.
+
 ## [2.7.0] - 2026-10-03
 
 ### Added

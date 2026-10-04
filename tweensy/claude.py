@@ -40,13 +40,15 @@ If the message points at sketch images in sketches/ (a storyboard, one image per
 Read tool before planning: black is the layout, red arrows are motion (numbers give the order), blue text labels
 things. Only if a scene is genuinely unclear, ask short numbered questions and wait for answers instead of
 guessing; otherwise build.
+Files the person added (their photos, logos, fonts, sounds, videos) may be shared with their other projects, so
+never edit or overwrite them in place: save any changed version under a new file name.
 If a prompt points at a font file in fonts/ that is missing, download that free font (Google Fonts or the
 @fontsource npm packages) into fonts/ yourself. If sounds are wanted and sfx/ is missing, make small
 click/tick/chime sounds with ffmpeg into sfx/.
 Run renders in the foreground and wait for them to finish before you reply: never use run_in_background or
 "&" for a render. When this reply ends, anything still running is stopped, so a background render never
 finishes. Give the Bash call the longest timeout (600000 ms). Tweensy shows its own progress bar.
-When a render finishes, say the file name (for example renders/first.mp4): it appears in the Videos panel.
+When a render finishes, say the file name (for example renders/first.mp4): it appears in the Creations panel.
 If you install something that needs a new PATH (Windows especially), tell them to close and reopen Tweensy."""
 
 

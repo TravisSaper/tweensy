@@ -5,7 +5,7 @@ import { state, MOBILE, WORKING, findItem } from "./state.js";
 import { md } from "./markdown.js";
 import { showTab, setInput } from "./guide.js";
 import { statusCard, notifyDone } from "./status-card.js";
-import { loadVideos, selectVideo } from "./videos.js";
+import { loadVideos, selectVideo, fmtSize } from "./videos.js";
 
 function welcome() {
   const starters = [
@@ -16,7 +16,7 @@ function welcome() {
   const el = document.createElement("div");
   el.className = "welcome";
   el.innerHTML = `<h3>What do you want to make?</h3>
-    <p>Pick a starter, browse the menus at the bottom, or just describe your video in your own words. Claude builds it and the video shows up in Videos.</p>
+    <p>Pick a starter, browse the menus at the bottom, or just describe your video in your own words. Claude builds it, you review it in Creations, then say what to change.</p>
     <div class="starters"></div>`;
   starters.forEach(([title, sub, item]) => {
     if (!item) return;
@@ -48,7 +48,7 @@ function addMessage(m) {
     el.innerHTML = `<div class="bubble"></div>`;
     el.querySelector(".bubble").textContent = m.text;
   } else {
-    el.innerHTML = `<div class="who">Claude</div>`;
+    el.innerHTML = `<div class="who"><span class="avatar" aria-hidden="true">▶</span>Claude</div>`;
     if (m.error) {
       const c = document.createElement("div");
       c.className = "status-card err";
@@ -107,7 +107,7 @@ export function watchBusyProject(name, progress) {
   clearTimeout(reopenPoll);
   const el = document.createElement("div");
   el.className = "msg assistant";
-  el.innerHTML = `<div class="who">Claude</div>`;
+  el.innerHTML = `<div class="who"><span class="avatar" aria-hidden="true">▶</span>Claude</div>`;
   const card = statusCard();
   card.el.querySelector(".time").textContent = "";
   card.el.querySelector(".title").textContent = "Still working on this project…";
@@ -164,7 +164,7 @@ export async function send() {
 
   const el = document.createElement("div");
   el.className = "msg assistant";
-  el.innerHTML = `<div class="who">Claude</div>`;
+  el.innerHTML = `<div class="who"><span class="avatar" aria-hidden="true">▶</span>Claude</div>`;
   const card = statusCard();
   const steps = [];
   const sb = stepsBox(steps, true);
@@ -269,6 +269,37 @@ function openAddFiles() {
   if (!state.project) return;
   $("#addFilesNote").textContent = "";
   $("#addFiles").hidden = false;
+  renderUploads();
+}
+
+// Files added before live once in the Assets folder; adding one to a project links it, no new copy.
+const FOLDER_FOR = { font: "fonts", audio: "sfx" };
+
+async function renderUploads() {
+  const { assets, folder } = await api("/api/assets");
+  $("#uploadsTip").innerHTML = (assets.length ? "Add one to this project without uploading it again. " : "Nothing yet. ") +
+    `Every file is kept once, however many projects use it. Tip: move files into <code>${esc(folder)}</code> yourself and they're never copied at all.`;
+  const box = $("#uploads");
+  box.innerHTML = "";
+  assets.forEach((a) => {
+    const row = document.createElement("div");
+    row.className = "upload-row";
+    row.innerHTML = (a.kind === "image" ? `<img class="upload-thumb" alt="" src="/assets/${encodeURIComponent(a.name)}?v=${a.mtime}">`
+      : `<span class="upload-thumb kind">${esc(a.kind)}</span>`) +
+      `<span class="upload-name"></span><span class="hint">${fmtSize(a.size)}</span>
+      <select aria-label="Folder">${DESTINATIONS.map((d) => `<option value="${d.folder}">${esc(d.title)}</option>`).join("")}</select>
+      <button class="btn small">Add</button>`;
+    row.querySelector(".upload-name").textContent = a.name;
+    row.querySelector("select").value = FOLDER_FOR[a.kind] || "";
+    row.querySelector("button").onclick = async () => {
+      const r = await postJson("/api/assets/add", { project: state.project, name: a.name, folder: row.querySelector("select").value });
+      if (!r.saved) return;
+      closeAddFiles();
+      setInput(`I added ${r.saved} to this project.`);
+      loadVideos();
+    };
+    box.appendChild(row);
+  });
 }
 
 function closeAddFiles() {
@@ -278,13 +309,19 @@ function closeAddFiles() {
 async function uploadFiles(files) {
   const folder = uploadFolder;
   const saved = [];
+  let reused = 0;
   for (const f of files) {
-    $("#busy").textContent = $("#addFilesNote").textContent = `Copying ${f.name}…`;
+    $("#busy").textContent = $("#addFilesNote").textContent = `Adding ${f.name}…`;
     const q = new URLSearchParams({ project: state.project, name: f.name, folder });
     const r = await api("/api/upload?" + q, { method: "POST", body: f });
     if (r.saved) saved.push(r.saved);
+    if (r.reused) reused++;
   }
   $("#busy").textContent = state.busy ? WORKING : "";
+  if (reused) {
+    $("#busy").textContent = `${reused === 1 ? "That file was" : `${reused} files were`} already in your uploads, so no extra space was used.`;
+    setTimeout(() => { $("#busy").textContent = state.busy ? WORKING : ""; }, 5000);
+  }
   closeAddFiles();
   if (saved.length) setInput(`I added ${saved.join(", ")} to this project.`);
   loadVideos();
@@ -299,6 +336,7 @@ export function initChat() {
   $("#input").addEventListener("input", autosize);
   renderDestinations();
   $("#attach").onclick = openAddFiles;
+  $("#ideaChips").querySelectorAll("button").forEach((b) => (b.onclick = () => setInput(b.dataset.idea)));
   $("#addFilesClose").onclick = closeAddFiles;
   $("#addFiles").addEventListener("click", (e) => { if (e.target.id === "addFiles") closeAddFiles(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAddFiles(); });

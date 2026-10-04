@@ -240,9 +240,10 @@ tweensy/
 │   ├── server.py                 #   HTTP routes and main()
 │   ├── chat.py                   #   one chat turn: run Claude Code, stream it, save the reply
 │   ├── claude.py                 #   tool allowlist, instructions, command line, step names
-│   ├── export.py                 #   1080p/4K and 30/60 fps settings and the render note
+│   ├── export.py                 #   shape, 1080p/4K and 24/60 fps settings and the render note
 │   ├── progress.py               #   reading HyperFrames' render log for the progress bar
 │   ├── projects.py               #   project folders, chat history, video lists
+│   ├── assets.py                 #   one shared copy of each upload, hard-linked into projects
 │   ├── system.py                 #   finding Claude/Node/FFmpeg, setup checks, Stop
 │   ├── config.py                 #   paths, port, OS facts
 │   └── guide.py                  #   every example, style, move and fix, as data
@@ -256,6 +257,7 @@ tweensy/
 ├── scripts/                      # build_app.py (downloadable app) and smoke_test.py
 ├── tests/                        # server and helper tests (no Claude Code needed)
 ├── docs/                         # screenshots and demo GIF for this README
+├── assets/                       # every file you add, kept once (git-ignored)
 └── projects/                     # your work (git-ignored)
 ```
 

@@ -7,6 +7,7 @@ import { refreshExport } from "./export.js";
 import { renderHistory, setBusy, watchBusyProject } from "./chat.js";
 import { loadVideos } from "./videos.js";
 import { askText } from "./dialog.js";
+import { showView } from "./library.js";
 
 // Same rules as the server (tweensy/projects.py), so the preview matches the folder it makes.
 function slugify(name) {
@@ -67,5 +68,6 @@ export function initProjects() {
     if (!name) return;
     const res = await postJson("/api/projects", { name });
     await loadProjects(res.name);
+    showView("dashboard");
   };
 }
