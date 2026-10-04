@@ -363,8 +363,6 @@ like you'd tell a friend: "the text is cut off on the right", "the card covers m
 
 ## Credits
 
-Inspired by *Motion Graphics with Claude Code* by [@damianodesu](https://instagram.com/damianodesu).
-
 Rendering by [HyperFrames](https://github.com/heygen-com/hyperframes) (HeyGen). The agent is
 [Claude Code](https://code.claude.com/docs) by Anthropic, running on your own plan.
 
