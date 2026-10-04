@@ -5,6 +5,7 @@ import { state, MOBILE } from "./state.js";
 import { openBoard } from "./sketch.js";
 import { autosize } from "./chat.js";
 import { yourStyles } from "./mystyles.js";
+import { attachPeek, hidePeek } from "./peek.js";
 
 // Menus in the bottom bar. Guide menus fill the left panel; Chat and Videos are their own
 // panels (always visible on wide screens, so those two buttons only show on small screens).
@@ -89,6 +90,7 @@ export function setInput(text) {
 }
 
 export function renderGuide() {
+  hidePeek();
   const tab = TABS.find((t) => t.id === state.tab);
   $("#guideTitle").textContent = tab.label;
   const root = $("#guide");
@@ -135,16 +137,40 @@ function renderSection(sec) {
       return;
     }
     chips = null;
-    el.appendChild(renderCard(it));
+    el.appendChild(MOBILE.matches ? renderCard(it) : compactRow(it, () => renderCard(it)));
   });
   return el;
 }
+
+// One slim row per prompt or style: name and a + to add it. Hover, focus or click shows the full card
+// (buildCard) beside the panel. Phones get the full cards instead, since there's no hover.
+export function compactRow(it, buildCard, style = it.kind === "style" ? styleId(it) : "") {
+  const row = document.createElement("div");
+  row.className = "crow" + (style ? " crow-style" : "");
+  row.tabIndex = 0;
+  if (style) row.dataset.style = style;
+  const what = it.kind === "style" ? "style" : "prompt";
+  row.innerHTML = `<span class="crow-mark" aria-hidden="true"></span><span class="crow-name"></span>
+    <button class="crow-add" type="button" title="Add this ${what} to your message" aria-label="Add ${esc(it.label)} to your message">+</button>`;
+  row.querySelector(".crow-name").textContent = it.label;
+  const add = () => {
+    setInput(it.text);
+    row.classList.add("added");
+    setTimeout(() => row.classList.remove("added"), 700);
+  };
+  row.querySelector(".crow-add").onclick = (e) => { e.stopPropagation(); add(); };
+  row.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target === row) add(); });
+  attachPeek(row, buildCard);
+  return row;
+}
+
+const styleId = (it) => it.label.toLowerCase().replace(/[^a-z]+/g, "-");
 
 export function renderCard(it) {
   const isStyle = it.kind === "style";
   const card = document.createElement("div");
   card.className = "card" + (isStyle ? " style-card" : "");
-  if (isStyle) card.dataset.style = it.label.toLowerCase().replace(/[^a-z]+/g, "-");
+  if (isStyle) card.dataset.style = styleId(it);
   card.innerHTML = `${isStyle ? `<div class="style-swatch" aria-hidden="true"><span>${esc(it.label)}</span></div>` : ""}
     <div class="lbl">${esc(it.label)}</div>
     ${it.note ? `<div class="note">${esc(it.note)}</div>` : ""}

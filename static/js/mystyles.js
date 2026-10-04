@@ -2,8 +2,8 @@
 // They live in styles.json (tweensy/styles.py) and show under the built-in styles in every project.
 
 import { $, api, postJson } from "./util.js";
-import { state } from "./state.js";
-import { renderCard, renderGuide, setInput } from "./guide.js";
+import { compactRow, renderCard, renderGuide, setInput } from "./guide.js";
+import { state, MOBILE } from "./state.js";
 import { confirmBox } from "./dialog.js";
 
 const TEMPLATE = `- Font:
@@ -38,38 +38,49 @@ async function fill(box) {
   mine = await api("/api/styles");
   box.innerHTML = mine.length ? "" : `<div class="hint mine-empty">None yet.</div>`;
   mine.forEach((s) => {
-    const card = renderCard({ kind: "style", label: s.label, note: s.note, text: s.text });
-    card.dataset.style = "mine";
-    paintSwatch(card.querySelector(".style-swatch"), s.text);
-    const edit = document.createElement("button");
-    edit.className = "btn small"; edit.textContent = "Edit";
-    edit.onclick = () => openEditor(s);
-    const del = document.createElement("button");
-    del.className = "btn small"; del.textContent = "Delete";
-    del.onclick = async () => {
-      if (!(await confirmBox({ title: `Delete “${s.label}”?`, text: "Videos you already made with it stay as they are.", okText: "Delete" }))) return;
-      await postJson("/api/styles/delete", { id: s.id });
-      refresh();
-    };
-    card.querySelector(".row").append(edit, del);
-    box.appendChild(card);
+    const item = { kind: "style", label: s.label, note: s.note, text: s.text };
+    if (MOBILE.matches) { box.appendChild(myCard(s, item)); return; }
+    const row = compactRow(item, () => myCard(s, item), "mine");
+    const colours = coloursOf(s.text);
+    if (colours) row.querySelector(".crow-mark").style.background = `linear-gradient(135deg, ${colours[0]} 50%, ${colours[1]} 50%)`;
+    box.appendChild(row);
   });
 }
 
-// Draw the swatch in the style's own colours when its rules name hex codes: darkest as the background,
-// lightest as the text (only if they contrast enough to read).
-function paintSwatch(el, text) {
+// The full card: the built-in card plus Edit and Delete, painted in the style's own colours.
+function myCard(s, item) {
+  const card = renderCard(item);
+  card.dataset.style = "mine";
+  const colours = coloursOf(s.text);
+  if (colours) {
+    card.querySelector(".style-swatch").style.background = colours[0];
+    card.querySelector(".style-swatch span").style.color = colours[1];
+  }
+  const edit = document.createElement("button");
+  edit.className = "btn small"; edit.textContent = "Edit";
+  edit.onclick = () => openEditor(s);
+  const del = document.createElement("button");
+  del.className = "btn small"; del.textContent = "Delete";
+  del.onclick = async () => {
+    if (!(await confirmBox({ title: `Delete “${s.label}”?`, text: "Videos you already made with it stay as they are.", okText: "Delete" }))) return;
+    await postJson("/api/styles/delete", { id: s.id });
+    refresh();
+  };
+  card.querySelector(".row").append(edit, del);
+  return card;
+}
+
+// [background, text] from the hex codes named in a style's rules: darkest and lightest, if they read well.
+function coloursOf(text) {
   const hexes = [...new Set((text.match(/#[0-9a-f]{6}\b/gi) || []).map((h) => h.toLowerCase()))];
-  if (hexes.length < 2) return;
+  if (hexes.length < 2) return null;
   const lum = (h) => {
     const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
     return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   };
   const sorted = hexes.sort((a, b) => lum(a) - lum(b));
   const [bg, fg] = [sorted[0], sorted[sorted.length - 1]];
-  if ((lum(fg) + 0.05) / (lum(bg) + 0.05) < 3) return;
-  el.style.background = bg;
-  el.querySelector("span").style.color = fg;
+  return (lum(fg) + 0.05) / (lum(bg) + 0.05) < 3 ? null : [bg, fg];
 }
 
 function refresh() {
