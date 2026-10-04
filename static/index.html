@@ -101,6 +101,29 @@
   </div>
 </div>
 
+<div class="overlay" id="styleEditor" hidden>
+  <div class="modal style-modal" role="dialog" aria-modal="true" aria-labelledby="styleEditorTitle">
+    <div class="modal-head">
+      <h3 id="styleEditorTitle">Add your own style</h3>
+      <button class="btn small" id="styleEditorClose" aria-label="Close">Close</button>
+    </div>
+    <div id="styleChoice">
+      <p class="hint">A style is a set of design rules (fonts, colours and how things move) that you can add to any video.</p>
+      <div class="dest-list">
+        <button class="dest" id="styleTypeIt"><span class="dest-body"><b>Type it in</b><span>Write the rules yourself: fonts, colours, motion and layout.</span></span></button>
+        <button class="dest" id="styleAskClaude"><span class="dest-body"><b>Design it with Claude</b><span>Describe the look you want in the chat. Claude asks a few questions and writes the style; then save it with one click.</span></span></button>
+      </div>
+    </div>
+    <form id="styleForm" hidden>
+      <label class="field">Name<input id="styleName" maxlength="40" required placeholder="For example: Sunset Grain"></label>
+      <label class="field">Short description <span class="hint">(optional)</span><input id="styleNote" maxlength="140" placeholder="Warm film look for calm product videos"></label>
+      <label class="field">Rules<textarea id="styleText" rows="9" maxlength="4000" required></textarea></label>
+      <p class="hint" id="styleFormNote"></p>
+      <div class="modal-foot"><button class="btn primary" id="styleSave">Save style</button><button type="button" class="btn" id="styleBack">Back</button></div>
+    </form>
+  </div>
+</div>
+
 <div class="overlay dialog-overlay" id="dialog" hidden>
   <div class="modal dialog-modal" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
     <h3 id="dlgTitle"></h3>

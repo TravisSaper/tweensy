@@ -4,6 +4,7 @@ import { $, esc } from "./util.js";
 import { state, MOBILE } from "./state.js";
 import { openBoard } from "./sketch.js";
 import { autosize } from "./chat.js";
+import { yourStyles } from "./mystyles.js";
 
 // Menus in the bottom bar. Guide menus fill the left panel; Chat and Videos are their own
 // panels (always visible on wide screens, so those two buttons only show on small screens).
@@ -120,6 +121,7 @@ export function renderGuide() {
     const sec = state.guide.find((s) => s.id === sid);
     if (sec) root.appendChild(renderSection(sec));
   });
+  if (tab.id === "styles") root.appendChild(yourStyles());
   root.scrollTop = 0;
 }
 
@@ -161,7 +163,7 @@ function renderSection(sec) {
   return el;
 }
 
-function renderCard(it) {
+export function renderCard(it) {
   const isStyle = it.kind === "style";
   const card = document.createElement("div");
   card.className = "card" + (isStyle ? " style-card" : "");

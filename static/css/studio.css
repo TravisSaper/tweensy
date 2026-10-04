@@ -220,3 +220,22 @@ nav.bottom button svg { width: 19px; height: 19px; }
 .pop-note { font-size: 12px; margin-top: 8px; }
 .pop-more { margin-top: 12px; }
 .export-pop .chips { margin: 6px 0 0; }
+
+/* ---------- Your styles ---------- */
+.your-styles .mine { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+.add-style { width: 100%; border-style: dashed; }
+.add-style:hover { color: var(--action-text); }
+[data-style="mine"] .style-swatch { background: var(--action-soft); }
+[data-style="mine"] .style-swatch span { color: var(--action-text); font-weight: 700; font-size: 22px; }
+[data-style="mine"] { --preview: fg-lift 2.4s; }
+.style-modal { width: min(560px, 100%); }
+.style-modal .field { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; font-size: 13px; font-weight: 600; }
+.style-modal .field .hint { font-weight: 400; }
+.style-modal input, .style-modal textarea {
+  border: 1px solid var(--line); background: var(--panel-2); border-radius: 6px; padding: 8px 10px; font-weight: 400; outline: none;
+}
+.style-modal textarea { font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical; }
+.style-modal input:focus, .style-modal textarea:focus { border-color: var(--action); }
+.save-style { margin-top: 10px; justify-self: start; }
+.style-card .row { flex-wrap: wrap; }
+.style-card .row .btn { white-space: nowrap; }

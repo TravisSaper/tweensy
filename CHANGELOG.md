@@ -15,6 +15,9 @@ versions: [SemVer](https://semver.org/).
   under the video to pin a note to that moment; notes go with your next message as `[07.6s] …`.
 - Suggestion chips come from Claude's latest reply, with its offered follow-up first.
 - Hover a style card to see a short looping preview of how that style moves.
+- **Your styles:** under the built-in styles, **+ Add your own style** lets you type the rules or design
+  them with Claude in the chat; when Claude writes a style, **Save to Your styles** appears under its reply.
+  Your styles work in every project and can be edited or deleted.
 - **Open folder** button instead of the long project path.
 - **Sidebar** like Paperclip's: **New project**, **Dashboard** (the chat workspace), **Projects** and
   **Video library**, with the Setup status at the bottom. On phones it becomes a strip at the top.

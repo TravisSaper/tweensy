@@ -11,6 +11,7 @@ import { initVideos } from "./videos.js";
 import { initSketch } from "./sketch.js";
 import { initDialog } from "./dialog.js";
 import { initLibrary } from "./library.js";
+import { initMyStyles } from "./mystyles.js";
 
 initExport();
 initSetup();
@@ -21,6 +22,7 @@ initSketch();
 initDialog();
 buildNav();
 initLibrary();
+initMyStyles();
 
 state.guide = await api("/api/guide");
 let tab = "guide";

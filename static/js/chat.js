@@ -7,6 +7,7 @@ import { showTab, setInput } from "./guide.js";
 import { statusCard, notifyDone } from "./status-card.js";
 import { loadVideos, selectVideo, fmtSize } from "./videos.js";
 import { chatPlayer, takeComments, hasComments, resetComments, setChips } from "./feedback.js";
+import { styleSaveButton } from "./mystyles.js";
 
 function welcome() {
   const starters = [
@@ -62,6 +63,8 @@ function addMessage(m) {
     b.innerHTML = md(m.text || "");
     el.appendChild(b);
     if (m.video) el.appendChild(chatPlayer(m.video, m.version));
+    const save = styleSaveButton(m.text);
+    if (save) el.appendChild(save);
   }
   box.appendChild(el);
   scrollDown();
@@ -218,6 +221,8 @@ export async function send() {
         if (ev.text != null) { reply = ev.text; bubble.innerHTML = md(reply); }
         if (ev.version) el.appendChild(chatPlayer(`renders/v${String(ev.version).padStart(3, "0")}.mp4`, ev.version));
         setChips({ suggestions: ev.suggestions, text: ev.text });
+        const save = styleSaveButton(ev.text);
+        if (save) el.appendChild(save);
       }
       const s = $("#chatScroll");
       if (s.scrollHeight - s.scrollTop - s.clientHeight < 160) scrollDown();
