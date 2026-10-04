@@ -105,11 +105,9 @@ export function resetComments() {
 // back to the follow-ups it offered in plain words ("Want me to …?", "I can … if you'd like").
 export function offered(text) {
   const out = [];
-  for (const s of (text || "").split(/(?<=[.?!])\s+/)) {
-    const m = s.trim().match(/^(?:want me to|should i|shall i|i can|i could)\s+(.+?)(?:,?\s+if you(?:'d)? (?:like|prefer|want)(?: it)?)?[.?!]?$/i);
-    if (m) out.push(m[1].charAt(0).toUpperCase() + m[1].slice(1));
-  }
-  return out;
+  const pats = [/\b(?:want me to|should i|shall i)\s+([^.?!]+?)\s*\?/gi, /\bI (?:can|could)\s+([^.?!]+?),?\s+if you(?:'d)? (?:like|prefer|want)\b/gi];
+  for (const re of pats) for (const m of (text || "").matchAll(re)) out.push(m[1].charAt(0).toUpperCase() + m[1].slice(1));
+  return [...new Set(out)];
 }
 
 export function setChips(reply) {
