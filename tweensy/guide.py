@@ -23,7 +23,7 @@ SECTIONS = [
             "turns that page into a video file. Start from a prompt below, swap the parts in "
             "[brackets] for your own, press Send, then ask for changes in plain words. Pick the "
             "shape (16:9, 9:16 or square), 1080p or 4K, and 24 or 60 fps with the badge next to "
-            "Send or in the Export menu."
+            "Send; special formats like ProRes are in there too."
         ),
         "items": [],
     },
@@ -319,7 +319,7 @@ Keep them well under any voice, then render again.""",
         "id": "export",
         "num": "9",
         "title": "Special formats",
-        "body": "One-off formats for editing software. They use the quality you picked above unless they say otherwise.",
+        "body": "One-off formats for editing software. They use the quality you picked unless they say otherwise.",
         "items": [
             {"kind": "tweak", "label": "ProRes MOV", "text": "Render it again as a ProRes 4444 MOV."},
             {"kind": "tweak", "label": "PNG frames", "text": "Also export it as a PNG frame sequence."},

@@ -98,11 +98,12 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(styles, ["Bold Type", "Frosted Glass", "Paper Print", "Neon Pop"])
 
     def test_every_menu_section_exists(self):
-        # The bottom-nav menus in static/index.html group these section ids.
+        # The dock menus (guide.js) and the export badge pop-up (export.js) show these section ids.
         section_ids = {s["id"] for s in SECTIONS}
         for sid in ("start", "setup", "first", "make", "polish", "moves", "change", "styles", "export", "fix"):
             self.assertIn(sid, section_ids)
-        menus = (Path(__file__).resolve().parents[1] / "static" / "js" / "guide.js").read_text(encoding="utf-8")
+        js = Path(__file__).resolve().parents[1] / "static" / "js"
+        menus = "".join((js / f).read_text(encoding="utf-8") for f in ("guide.js", "export.js"))
         for sid in section_ids:
             self.assertIn(f'"{sid}"', menus, f"section {sid} isn't in any menu")
 

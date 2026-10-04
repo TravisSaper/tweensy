@@ -115,7 +115,7 @@
   border: 4px solid #14121f; box-shadow: 6px 6px 0 #14121f;
 }
 
-/* ---------- calmer navigation, grouped: create · refine · finish ---------- */
+/* ---------- calmer navigation, grouped: create · refine ---------- */
 nav.bottom { gap: 2px; }
 nav.bottom button { min-width: 74px; font-size: 11.5px; }
 nav.bottom button svg { width: 19px; height: 19px; }
@@ -215,3 +215,8 @@ nav.bottom button svg { width: 19px; height: 19px; }
 
 #settingsPage { max-width: 640px; }
 #settingsPage .group { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 12px; padding: 14px 16px; }
+
+.export-pop { width: min(360px, 100%); }
+.pop-note { font-size: 12px; margin-top: 8px; }
+.pop-more { margin-top: 12px; }
+.export-pop .chips { margin: 6px 0 0; }

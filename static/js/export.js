@@ -1,9 +1,9 @@
 // Export settings for the open project: shape (16:9, 9:16, 1:1), 1080p or 4K, 24 or 60 fps.
-// The same picker shows in the Export menu and in the quick pop-up on the badge next to Send.
+// Shape, quality and frame rate live in the pop-up on the badge next to Send, with the special formats below.
 
-import { $, esc, postJson } from "./util.js";
+import { $, postJson } from "./util.js";
 import { state } from "./state.js";
-import { renderGuide } from "./guide.js";
+import { setInput } from "./guide.js";
 
 // Rough render times for a 6-second video (measured at 16:9 for 1080p/4K at 60 fps).
 const ESTIMATE = {
@@ -34,18 +34,6 @@ function pickerRows(compact) {
   return wrap;
 }
 
-export function exportPicker() {
-  const wrap = document.createElement("div");
-  wrap.className = "group";
-  wrap.innerHTML = `<h3>Export for ${esc(state.project || "this project")}</h3>`;
-  wrap.appendChild(pickerRows(false));
-  const note = document.createElement("div");
-  note.className = "estimate";
-  note.innerHTML = `Every render uses the highest quality setting. A 6-second video at <b>${esc(exportLabel(state.exp))}</b> takes ${ESTIMATE[`${state.exp.res}-${state.exp.fps}`]} to render. Longer videos take longer.`;
-  wrap.appendChild(note);
-  return wrap;
-}
-
 // Save, then refresh everything that shows the setting.
 export async function saveExport(next) {
   state.exp = next;
@@ -57,15 +45,33 @@ export async function saveExport(next) {
 export function refreshExport() {
   $("#exportLabel").textContent = exportLabel(state.exp);
   const pop = $("#exportPop");
-  if (!pop.hidden) { pop.innerHTML = ""; pop.appendChild(pickerRows(true)); }
-  if (state.tab === "export") renderGuide();
+  if (!pop.hidden) pop.replaceChildren(popContent());
+}
+
+// Everything about how renders come out, in one place.
+function popContent() {
+  const wrap = document.createElement("div");
+  wrap.appendChild(pickerRows(true));
+  const est = ESTIMATE[`${state.exp.res}-${state.exp.fps}`];
+  if (est) wrap.insertAdjacentHTML("beforeend", `<div class="pop-note hint">A 6-second video takes ${est} to render at this setting.</div>`);
+  const formats = state.guide.find((s) => s.id === "export")?.items || [];
+  if (formats.length) {
+    wrap.insertAdjacentHTML("beforeend", `<div class="field-label pop-more">More formats</div><div class="chips"></div>`);
+    formats.forEach((it) => {
+      const b = document.createElement("button");
+      b.className = "chip"; b.type = "button"; b.textContent = it.label; b.title = it.note || it.text;
+      b.onclick = () => { setInput(it.text); togglePop(false); };
+      wrap.querySelector(".chips").appendChild(b);
+    });
+  }
+  return wrap;
 }
 
 function togglePop(open = $("#exportPop").hidden) {
   const pop = $("#exportPop");
   pop.hidden = !open;
   $("#exportBadge").setAttribute("aria-expanded", String(open));
-  if (open) { pop.innerHTML = ""; pop.appendChild(pickerRows(true)); }
+  if (open) pop.replaceChildren(popContent());
 }
 
 export function initExport() {

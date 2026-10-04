@@ -2,7 +2,6 @@
 
 import { $, esc } from "./util.js";
 import { state, MOBILE } from "./state.js";
-import { exportPicker } from "./export.js";
 import { openBoard } from "./sketch.js";
 import { autosize } from "./chat.js";
 
@@ -27,15 +26,14 @@ export const TABS = [
   { id: "animations", group: "refine", label: "Animations", sections: ["moves", "change"], intro: "Motion moves and quick changes. Click one, then finish the sentence." },
   { id: "styles", group: "create", label: "Styles", sections: ["styles"], intro: "Give any video a look. Add a style to your message, before or after you describe the video, and Claude uses its fonts, colours and motion." },
   { id: "sketch", group: "create", label: "Sketch", sections: [], intro: "Storyboard your video scene by scene. Claude turns it into a finished animation." },
-  { id: "export", group: "finish", label: "Export", sections: ["export"], intro: "Choose quality for this project, or export a special format." },
   { id: "fix", group: "refine", label: "Fix", sections: ["fix"], intro: "Something looks off? Click the problem." },
   { id: "chat", label: "Chat", mobile: true },
   { id: "videos", label: "Creations", mobile: true },
 ];
 
 export function buildNav() {
-  // Grouped visually (create · refine · finish); order within TABS is unchanged.
-  const order = ["create", "refine", "finish"];
+  // Grouped visually (create · refine); order within TABS is unchanged.
+  const order = ["create", "refine"];
   const tabs = [...TABS].sort((a, b) => order.indexOf(a.group) - order.indexOf(b.group));
   $("#nav").innerHTML = '<span class="nav-pill" aria-hidden="true"></span>' +
     tabs.map((t, i) => (i && t.group && tabs[i - 1].group && t.group !== tabs[i - 1].group ? '<span class="nav-sep" aria-hidden="true"></span>' : "") + `<button data-tab="${t.id}" class="${t.mobile ? "mobile-only" : ""}" aria-label="${t.label}">
@@ -117,7 +115,6 @@ export function renderGuide() {
   $("#guideTitle").textContent = tab.label;
   const root = $("#guide");
   root.innerHTML = `<div class="tab-intro">${esc(tab.intro)}</div>`;
-  if (tab.id === "export") root.appendChild(exportPicker());
   if (tab.id === "sketch") root.appendChild(sketchIntro());
   tab.sections.forEach((sid) => {
     const sec = state.guide.find((s) => s.id === sid);
