@@ -183,9 +183,11 @@ function renderCard(it) {
   use.textContent = isStyle ? "Add this style" : "Add this prompt";
   use.onclick = () => setInput(it.text);
   const copy = document.createElement("button");
-  copy.className = "btn small"; copy.textContent = "Copy";
+  const label = isStyle ? "Copy style rules" : "Copy prompt";
+  copy.className = "btn small"; copy.textContent = label;
+  copy.title = isStyle ? "Copy this style's full rules to the clipboard" : "Copy this prompt's text to the clipboard";
   copy.onclick = async () => {
-    try { await navigator.clipboard.writeText(it.text); copy.textContent = "Copied"; setTimeout(() => (copy.textContent = "Copy"), 1200); } catch {}
+    try { await navigator.clipboard.writeText(it.text); copy.textContent = "Copied"; setTimeout(() => (copy.textContent = label), 1200); } catch {}
   };
   card.querySelector(".row").append(use, copy);
   return card;
