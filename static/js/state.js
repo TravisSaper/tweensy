@@ -6,6 +6,9 @@ export const state = {
   guide: [],          // sections from /api/guide
   selected: null,     // video path shown in the player
   videos: [],         // videos in the open project
+  versions: [],       // render versions, newest first (see tweensy/versions.py)
+  current: null,      // version number the project files match
+  compare: [],        // up to two version files picked for side-by-side
   tab: "guide",       // left-panel menu
   exp: { aspect: "16:9", res: "4k", fps: 60 }, // export setting for the open project
 };
