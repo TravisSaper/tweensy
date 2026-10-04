@@ -342,7 +342,7 @@ class ServerTest(unittest.TestCase):
             self.assertEqual(self.post_json("/api/projects/nope/open-folder", {})[0], 404)
         finally:
             system.open_folder = real
-        self.assertEqual(opened, [config.PROJECTS / name])
+        self.assertEqual(opened, [projects.project_dir(name)])  # resolved, like the app (macOS /private, Windows long names)
 
     def test_chat_needs_project_and_message(self):
         status, body = self.post_json("/api/chat", {"project": "", "message": "hi"})
