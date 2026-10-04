@@ -17,7 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tweensy import __version__, claude, config, projects, versions  # noqa: E402
+from tweensy import __version__, chat, claude, config, projects, system, versions  # noqa: E402
 from tweensy.guide import SECTIONS  # noqa: E402
 from tweensy.server import Handler  # noqa: E402
 
@@ -279,6 +279,40 @@ class ServerTest(unittest.TestCase):
             status, _, body = self.request(path)
             self.assertEqual(status, 404, path)
             self.assertNotIn(b"nope", body)
+
+    def test_turn_keeps_narration_out_of_the_reply_and_records_a_version(self):
+        name = self.make_project("narrated")
+        pdir = config.PROJECTS / name
+        fake = self.tmp / "fake_claude.py"
+        lines = [
+            {"type": "assistant", "message": {"content": [{"type": "text", "text": "Checking the composition."}]}},
+            {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "npx hyperframes lint"}}]}},
+            {"type": "assistant", "message": {"content": [{"type": "text", "text": "The checker keeps flagging a warning."}]}},
+            {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "npx hyperframes render ."}}]}},
+            {"type": "assistant", "message": {"content": [{"type": "text", "text":
+                "Made the pause longer. Now 12 s at 1080p, 24 fps.\nVersion label: longer pause\nSuggestions: Make it faster | Try Neon Pop"}]}},
+            {"type": "result", "result": "done", "is_error": False},
+        ]
+        fake.write_text("import json, pathlib, sys\nsys.stdin.read()\n"
+                        "pathlib.Path('renders').mkdir(exist_ok=True)\npathlib.Path('renders/v001.mp4').write_bytes(b'video')\n"
+                        + "".join(f"print(json.dumps({line!r}))\n" for line in lines))
+        real_find, real_build = system.find_claude, claude.build_command
+        system.find_claude = lambda: "fake"
+        claude.build_command = lambda exe, sid, new: [sys.executable, str(fake)]
+        try:
+            events = []
+            chat.start(name, pdir, "Make the pause longer").stream(events.append)
+        finally:
+            system.find_claude, claude.build_command = real_find, real_build
+        reply = projects.load_state(pdir)["history"][-1]
+        self.assertEqual(reply["text"], "Made the pause longer. Now 12 s at 1080p, 24 fps.")
+        self.assertIn("“The checker keeps flagging a warning.”", reply["steps"])
+        self.assertIn("“Checking the composition.”", reply["steps"])
+        self.assertEqual(reply["suggestions"], ["Make it faster", "Try Neon Pop"])
+        self.assertEqual((reply["version"], reply["video"]), (1, "renders/v001.mp4"))
+        v = projects.load_state(pdir)["versions"][0]
+        self.assertEqual((v["label"], v["prompt"]), ("longer pause", "Make the pause longer"))
+        self.assertEqual(events[-1]["kind"], "done")
 
     def test_chat_needs_project_and_message(self):
         status, body = self.post_json("/api/chat", {"project": "", "message": "hi"})

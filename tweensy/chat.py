@@ -57,6 +57,7 @@ def start(name, pdir, message):
 class Turn:
     def __init__(self, name, pdir, message, exe):
         self.name, self.pdir, self.message = name, pdir, message
+        self.t0 = time.time()
         self.state = load_state(pdir)
         self.new_session = not self.state.get("session_id")
         if self.new_session:
@@ -108,6 +109,7 @@ class Turn:
             emit({"kind": "text", "text": text})
 
         emit({"kind": "status", "text": "Claude is thinking..."})
+        blocks = []  # ("text", words) and ("tool", step) in the order Claude produced them
         streamed = False
         result_text, is_error = None, False
         try:
@@ -127,9 +129,13 @@ class Turn:
                         add_text(delta["text"])
                 elif etype == "assistant":
                     for block in ev.get("message", {}).get("content", []):
-                        if block.get("type") == "tool_use":
+                        if block.get("type") == "text" and block.get("text", "").strip():
+                            blocks.append(("text", block["text"].strip()))
+                        elif block.get("type") == "tool_use":
+                            blocks.append(("tool", None))
                             step = claude.describe_tool(block.get("name"), block.get("input"))
                             if step:
+                                blocks[-1] = ("tool", step)
                                 reply["steps"].append(step)
                                 emit({"kind": "step", "text": step})
                 elif etype == "result":
@@ -156,11 +162,20 @@ class Turn:
             if not self.new_session and "No conversation found" in err:
                 self.state["session_id"] = None  # start fresh next time
 
+        # What Claude said between tool calls is progress narration: it goes in the folded step list.
+        # The visible reply is only what it said after its last tool call.
+        last_tool = max((i for i, (k, _) in enumerate(blocks) if k == "tool"), default=-1)
+        final = "\n\n".join(t for k, t in blocks[last_tool + 1:] if k == "text")
+        if last_tool >= 0 and final:
+            reply["steps"] = [t if k == "tool" else f"“{t}”" for k, t in blocks[:last_tool + 1] if t]
+            extra = reply["text"][reply["text"].rfind(final) + len(final):] if final in reply["text"] else ""
+            reply["text"] = final + extra  # keep notes Tweensy added after it, like "(Stopped.)"
+
         state = load_state(self.pdir) | {"session_id": self.state["session_id"]}
         reply["error"] = is_error
         reply["text"], label, reply["suggestions"] = versions.split_footer(reply["text"])
         out = self.pdir / versions.video_path(self.version)
-        if out.is_file() and out.stat().st_mtime >= started:
+        if out.is_file() and out.stat().st_mtime >= self.t0 - 1:
             v = versions.record(self.pdir, state, self.version, self.message, label, time.time())
             reply["version"], reply["video"] = v["n"], v["file"]
         state.setdefault("history", []).append(reply)

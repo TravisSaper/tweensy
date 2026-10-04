@@ -196,6 +196,16 @@ export async function send() {
       if (state.project !== project) return;
       if (ev.kind === "text") { reply += ev.text; bubble.innerHTML = md(reply); }
       else if (ev.kind === "step") {
+        // Words before a tool call were progress narration: move them into the step list.
+        if (reply.trim()) {
+          const said = `“${reply.trim()}”`;
+          steps.push(said);
+          const li = document.createElement("li");
+          li.textContent = said;
+          sb.querySelector("ol").appendChild(li);
+          reply = "";
+          bubble.innerHTML = "";
+        }
         steps.push(ev.text);
         const li = document.createElement("li");
         li.textContent = ev.text;
