@@ -7,7 +7,7 @@
   --panel-2: #fafafa;
   --line: #e5e5e5;
   --text: #171717;
-  --muted: #737373;
+  --muted: #6b6b6b;      /* 4.5:1+ on every light surface (WCAG AA) */
   --accent: #6d5dfc;
   --accent-2: #8f7bff;
   --accent-soft: #efedff;
@@ -20,6 +20,7 @@
   --ok: #16a34a;
   --warn: #d97706;
   --bad: #dc2626;
+  --bad-text: #dc2626;
   --code-bg: #f2f2f2;
   --shadow: none;
   --float: 0 12px 32px rgba(0, 0, 0, .12);  /* only for things that float: dialogs, pop-ups */
@@ -34,7 +35,7 @@
   --panel-2: #222222;
   --line: #2a2a2a;
   --text: #e8e8e8;
-  --muted: #8a8a8a;
+  --muted: #949494;      /* 4.5:1+ on every dark surface, incl. the purple tint */
   --accent: #8f7bff;
   --accent-2: #a796ff;
   --accent-soft: #262245;
@@ -43,6 +44,7 @@
   --action-soft: #262245;
   --action-text: #b4a8ff;
   --code-bg: #232323;
+  --bad-text: #f87171;   /* red text needs to be lighter on dark */
   --float: 0 12px 32px rgba(0, 0, 0, .5);
 }
 * { box-sizing: border-box; }
@@ -121,6 +123,7 @@ body {
 .link-btn:hover { text-decoration: underline; }
 .theater-video { width: 100%; max-height: 68vh; background: #000; border-radius: 8px; display: block; min-height: 0; }
 button, select, textarea, input { font: inherit; color: inherit; }
+::placeholder { color: var(--muted); opacity: 1; }
 button { cursor: pointer; }
 button:disabled { opacity: .6; cursor: default; }
 a { color: var(--action-text); }
@@ -250,7 +253,7 @@ nav.bottom .mobile-only { order: -1; }
 }
 .seg button small { font-weight: 400; font-size: 11.5px; color: var(--muted); }
 .seg button.on { background: var(--action); color: #fff; }
-.seg button.on small { color: rgba(255,255,255,.85); }
+.seg button.on small { color: #fff; }
 .estimate { font-size: 13px; color: var(--muted); background: var(--panel-2); border: 1px dashed var(--line); border-radius: 6px; padding: 8px 10px; }
 .estimate b { color: var(--text); }
 
@@ -279,7 +282,7 @@ nav.bottom .mobile-only { order: -1; }
 .status-top .title { font-weight: 600; font-size: 14px; }
 .status-top .time { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
 .status-card.ok .title { color: var(--ok); }
-.status-card.err .title { color: var(--bad); }
+.status-card.err .title { color: var(--bad-text); }
 .phases { display: flex; gap: 4px; margin-top: 8px; }
 .phase {
   flex: 1; text-align: center; padding: 3px 4px; border-radius: 999px; font-size: 12px;
@@ -380,7 +383,7 @@ details.steps ol { margin: 6px 0 2px; padding-left: 20px; }
   width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
   font-size: 13px; font-weight: 700; color: #fff; background: var(--muted); margin-top: 1px;
 }
-.check.ok .mark { background: var(--ok); }
+.check.ok .mark { background: #15803d; } /* white tick stays 4.5:1+ */
 .check.todo .mark { background: var(--bad); }
 .check.optional .mark { background: var(--warn); }
 .check .t { font-weight: 600; }
