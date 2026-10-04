@@ -18,9 +18,15 @@
 /* ---------- the conversation is the centre ---------- */
 @media (min-width: 1101px) {
   main { grid-template-columns: 320px minmax(0, 1fr) 360px; }
-  /* Centre the dock under the chat column, not the whole page: an asymmetric margin of
-     (Creations width - side panel width) moves its centre by half that, which is exactly where the chat's centre is. */
-  nav.bottom { margin-right: calc(12px + 360px - 320px); transition: margin .28s var(--ease); }
+  /* Side panels run to the bottom of the window; the dock floats at the bottom of the chat column only,
+     centred between the two side columns, and the chat keeps room for it under the prompt box. */
+  .workspace { position: relative; }
+  main { padding-bottom: 12px; }
+  #chatPanel { padding-bottom: calc(var(--nav-h) + 16px); }
+  nav.bottom {
+    position: absolute; bottom: 12px; left: calc(12px + 320px + 12px); right: calc(12px + 360px + 12px);
+    width: fit-content; max-width: calc(100% - 728px); margin: 0 auto;
+  }
 }
 #chatPanel { background: transparent; border-color: transparent; }
 /* The header, messages and prompt share one centred column, so they line up whether the side panel is open or not. */
