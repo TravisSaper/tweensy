@@ -144,7 +144,7 @@ Output: renders/moves.mp4. Check that all 10 moves appear.""",
         "id": "styles",
         "num": "6",
         "title": "Styles",
-        "body": "Each style is a set of design rules: fonts, colours and how things move. It goes under any prompt.",
+        "body": "Each style is a set of design rules: fonts, colours and how things move. It works with any request.",
         "items": [
             {
                 "kind": "style",
@@ -197,7 +197,7 @@ Output: renders/moves.mp4. Check that all 10 moves appear.""",
         "id": "make",
         "num": "7",
         "title": "Make a video",
-        "body": "Ready-made requests for common videos. Swap the [brackets] for your own, and add a style underneath if you like.",
+        "body": "Ready-made requests for common videos. Swap the [brackets] for your own, and add a style if you like.",
         "items": [
             {
                 "kind": "prompt",

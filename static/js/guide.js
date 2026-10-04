@@ -27,7 +27,7 @@ export const TABS = [
   { id: "guide", group: "create", label: "Guide", sections: ["start", "setup", "first"], intro: "Start here: how it works, setup, and your first video." },
   { id: "examples", group: "create", label: "Examples", sections: ["make", "polish"], intro: "Ready-made requests. Swap the [brackets] for your own." },
   { id: "animations", group: "refine", label: "Animations", sections: ["moves", "change"], intro: "Motion moves and quick changes. Click one, then finish the sentence." },
-  { id: "styles", group: "create", label: "Styles", sections: ["styles"], intro: "Pick an example first, then add a style underneath it." },
+  { id: "styles", group: "create", label: "Styles", sections: ["styles"], intro: "Give any video a look. Add a style to your message, before or after you describe the video, and Claude uses its fonts, colours and motion." },
   { id: "sketch", group: "create", label: "Sketch", sections: [], intro: "Storyboard your video scene by scene. Claude turns it into a finished animation." },
   { id: "export", group: "finish", label: "Export", sections: ["export"], intro: "Choose quality for this project, or export a special format." },
   { id: "fix", group: "refine", label: "Fix", sections: ["fix"], intro: "Something looks off? Click the problem." },
