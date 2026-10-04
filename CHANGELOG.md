@@ -5,7 +5,7 @@ versions: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
-## [Unreleased]
+## [2.8.0] - 2026-10-04
 
 ### Added
 - **Render versions:** every render is saved as its own `renders/vNNN.mp4` with its prompt, time, length,
@@ -34,8 +34,9 @@ versions: [SemVer](https://semver.org/).
 ### Changed
 - Claude's progress narration goes into the folded "What Claude did" list; the visible reply is only
   what changed, the final length and settings, and any open question.
-- The project name is the top bar title; the chat column is wider with ~75-character lines, and its header
-  lines up with it when the side panel is closed.
+- The project name is the top bar title; the chat column is wider with ~75-character lines.
+- The Guide/Examples side panel always stays open, and both side panels run to the bottom of the window
+  with the dock under the chat.
 - **Settings** moved to the sidebar. The dock's **Export** tab is gone: shape, quality, frame rate and the
   special formats all live in the badge next to Send. Download is only in Creations.
 - Styles can go before or after your request (the old "pick an example first" wording is gone); **Copy**

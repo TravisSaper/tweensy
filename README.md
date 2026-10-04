@@ -35,9 +35,9 @@ as it happens, and the finished video plays right next to the chat.
 
 ## Features
 
-- 🧭 **Everything one tap away.** The bottom bar switches between **Guide**, **Examples**,
-  **Animations**, **Styles**, **Sketch**, **Export**, **Fix** and **Settings**, while the chat and your videos stay on screen.
-  Click the open tab again (or the sidebar button) to slide the side panel away for a bigger chat.
+- 🧭 **Everything one tap away.** A sidebar for **New project**, **Dashboard**, **Projects**, **Video
+  library** and **Settings**; on the Dashboard the dock under the chat switches the side panel between
+  **Guide**, **Examples**, **Styles**, **Sketch**, **Animations** and **Fix**, while the chat and your videos stay on screen.
 - ✨ **Examples that work first time.** First video, text-only, product launch, app promo from
   screenshots, and graphics on your own footage. Each is laid out as *What / Look / Timing / Output*,
   with **[brackets]** for the parts you swap.
@@ -46,17 +46,23 @@ as it happens, and the finished video plays right next to the chat.
   scene is unclear.
 - 🎞️ **Animations as one-click chips.** Ten classic moves (rise, pop, count-up, typewriter, punch-in…)
   and quick changes (bouncier, calmer, bigger text, brand colours).
-- 🎨 **Four styles to stack under any example.** Bold Type, Frosted Glass, Paper Print and Neon Pop.
+- 🎨 **Styles for any request.** Bold Type, Frosted Glass, Paper Print and Neon Pop (hover one to see how it
+  moves), plus **your own styles**: type the rules or design one with Claude and save it in one click.
 - 🎚️ **Export picker.** Choose the **shape (16:9, 9:16 or square)**, **1080p or 4K** and **24 or 60 fps** per
   project, in one click from the badge next to Send. Every render uses the
-  highest quality setting. ProRes 4444, PNG frames, 24 fps and transparent overlays are one click away.
+  highest quality setting. ProRes 4444, PNG frames, 4K 120 fps and transparent overlays are in the same pop-up.
 - 💬 **Talk in plain words.** "Make the number bigger." Each project keeps its own conversation.
 - ⏱️ **Know when it's done.** A live card shows Planning → Building → Rendering → Checking with a
   timer, a real **progress bar with time left** while the video renders, and a green "Done in 2:15" when
   it's ready. The browser tab and a desktop notification tell you too, even if you switch away.
 - 👀 **See what Claude is doing.** A live step list, replies that stream in, a **Stop** button, and
   Claude checks frames from every finished render before it says it's done.
-- 🎬 **Videos panel** with a player, the real resolution, and a download button.
+- 🎬 **Every render is a version.** Creations lists them as "v3 · longer pause after reconnect" with length,
+  size and fps. Play any version, **Restore** an older one, or **Compare** two side by side.
+- 🎯 **Review in the chat.** Each reply that rendered plays its video right under it. Click a moment on the
+  comment bar to pin a note ("[07.6s] make this pause longer") that goes with your next message.
+- 📚 **Video library** across all projects, newest first, with the prompt behind each video.
+- 🗂️ **No duplicate uploads.** Files you add are kept once and shared by every project that uses them.
 - 🧰 **First-run setup.** A checklist finds what's missing (Claude Code, sign-in, Node, FFmpeg) and
   gives the exact command for your computer, or installs it for you.
 - 🪶 **One download, nothing else to install for the app.** A ready-to-run file for Windows, Mac and
@@ -127,8 +133,8 @@ press **Send**, and wait a few minutes.
 
 ## Export quality
 
-Click the **16:9 · 4K · 60 fps** badge next to Send for a quick pop-up, or open the **Export** menu.
-Each project remembers its own choice.
+Click the **16:9 · 4K · 60 fps** badge next to Send. Each project remembers its own choice. Special
+formats (ProRes MOV, PNG frames, 4K 120 fps, transparent overlay) are under **More formats** in the same pop-up.
 
 | Shape | 1080p | 4K |
 | --- | --- | --- |
@@ -182,12 +188,20 @@ Reopened the page mid-run? It picks the progress back up and updates when the ru
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/export.png" alt="Export menu with the resolution and frame-rate picker"></td>
+    <td width="50%"><img src="docs/screenshots/export.png" alt="Export pop-up on the badge next to Send, with shape, quality, frame rate and more formats"></td>
     <td width="50%"><img src="docs/screenshots/styles.png" alt="Styles menu, with a product-launch example and the Neon Pop style stacked in the chat box"></td>
   </tr>
   <tr>
     <td align="center"><b>Export.</b> Shape, 1080p or 4K, 24 or 60 fps, plus special formats.</td>
-    <td align="center"><b>Styles.</b> Stack a style under any example.</td>
+    <td align="center"><b>Styles.</b> Add a style to any request, or make your own.</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/review.png" alt="A render playing under Claude's reply, with a comment pinned to 8.0 seconds waiting to be sent"></td>
+    <td width="50%"><img src="docs/screenshots/compare.png" alt="Two versions playing side by side with their labels, length, size and frame rate"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Review.</b> Pin notes to exact moments in a render.</td>
+    <td align="center"><b>Versions.</b> Compare any two side by side, restore any one.</td>
   </tr>
   <tr>
     <td width="50%"><img src="docs/screenshots/animations.png" alt="Animations menu with motion moves and quick changes as chips"></td>
@@ -202,10 +216,10 @@ Reopened the page mid-run? It picks the progress back up and updates when the ru
 <p align="center">
   <img src="docs/screenshots/mobile-chat.png" alt="Chat on a phone-sized screen with the bottom navigation bar" width="240">
   &nbsp;
-  <img src="docs/screenshots/mobile-videos.png" alt="Videos on a phone-sized screen" width="240">
+  <img src="docs/screenshots/mobile-videos.png" alt="Creations with render versions on a phone-sized screen" width="240">
   &nbsp;
-  <img src="docs/screenshots/mobile-export.png" alt="Export picker on a phone-sized screen" width="240"><br>
-  <sub>On small screens the bottom bar switches the whole view: Chat · Videos · Guide · Examples · Animations · Styles · Sketch · Export · Fix · Settings.</sub>
+  <img src="docs/screenshots/mobile-export.png" alt="Export pop-up on a phone-sized screen" width="240"><br>
+  <sub>On small screens the bottom bar switches the whole view: Chat · Creations · Guide · Examples · Styles · Sketch · Animations · Fix.</sub>
 </p>
 
 ## How it works
@@ -228,8 +242,10 @@ flowchart LR
   come from generated files in `.runtime/`, so nothing depends on how your OS quotes arguments.
 - Claude runs headless with `--permission-mode acceptEdits` and only the tools in `ALLOWED_TOOLS`
   (see [SECURITY.md](SECURITY.md)).
-- Chat history and export settings are saved in `projects/.chats/`. Project folders stay empty until
-  Claude scaffolds them.
+- Each turn renders to the next free `renders/vNNN.mp4`; Tweensy records its prompt, length, size and fps
+  (via ffprobe) and keeps a copy of the composition's source so **Restore** brings the project back too.
+- Chat history, versions and export settings are saved in `projects/.chats/`. Project folders stay empty
+  until Claude scaffolds them. Your own styles live in `styles.json`, uploads once in `assets/`.
 
 ## Project layout
 
@@ -244,6 +260,8 @@ tweensy/
 │   ├── progress.py               #   reading HyperFrames' render log for the progress bar
 │   ├── projects.py               #   project folders, chat history, video lists
 │   ├── assets.py                 #   one shared copy of each upload, hard-linked into projects
+│   ├── versions.py               #   render versions: numbering, ffprobe details, source snapshots, restore
+│   ├── styles.py                 #   your own styles (styles.json)
 │   ├── system.py                 #   finding Claude/Node/FFmpeg, setup checks, Stop
 │   ├── config.py                 #   paths, port, OS facts
 │   └── guide.py                  #   every example, style, move and fix, as data
@@ -265,7 +283,7 @@ tweensy/
 
 | What | How |
 | --- | --- |
-| Export quality | **Export** menu in the app (saved per project) |
+| Export quality | The badge next to Send (saved per project) |
 | Port | **Settings → Port** in the app, or `tweensy --port 9000` / `python3 app.py --port 9000` (saved in `settings.json`). `TWEENSY_PORT=9000` picks one for a single run. |
 | Don't open a browser | `python3 app.py --no-browser` |
 | What Claude may run | `ALLOWED_TOOLS` in `tweensy/claude.py` |
@@ -277,7 +295,7 @@ tweensy/
 
 ```sh
 python3 app.py --no-browser                 # run from source
-python3 -m unittest discover -s tests -v    # 24 tests, ~2 s, no Claude Code needed
+python3 -m unittest discover -s tests -v    # 32 tests, ~1 s, no Claude Code needed
 pip install pyinstaller && python3 scripts/build_app.py   # build the app for this computer
 ```
 
