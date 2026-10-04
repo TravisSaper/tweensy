@@ -97,6 +97,7 @@ function openTheater(project, v, url, thumb) {
   prompt.classList.add("clamped");
   const video = document.createElement("video");
   video.className = "theater-video";
+  video.setAttribute("controlslist", "nodownload"); // downloads live in one place: Creations
   Object.assign(video, { src: url, controls: true, playsInline: true, muted: true, loop: true });
   card.appendChild(video);
   $("#theater").hidden = false;

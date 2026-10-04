@@ -15,7 +15,7 @@ const fileUrl = (path) => `/files/${encodeURIComponent(state.project)}/` + path.
 export function chatPlayer(path, n) {
   const box = document.createElement("div");
   box.className = "chat-video";
-  box.innerHTML = `<video controls preload="metadata" playsinline src="${esc(fileUrl(path))}"></video>
+  box.innerHTML = `<video controls controlslist="nodownload" preload="metadata" playsinline src="${esc(fileUrl(path))}"></video>
     <div class="ctrack" role="slider" tabindex="0" aria-label="Comment bar: click a moment to comment on it" title="Click a moment to comment on it">
       <div class="ctrack-fill"></div></div>
     <div class="ctrack-hint hint">Click the bar under the video to comment on that exact moment${n ? ` of v${n}` : ""}.</div>
