@@ -5,6 +5,12 @@ versions: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-10-04
+
+### Added
+- **Plan usage card** under Creations: your current session and this week's Claude plan usage, with a bar
+  and when each resets. It updates with every reply (Claude Code reports it), with no extra requests.
+
 ## [2.8.0] - 2026-10-04
 
 ### Added
