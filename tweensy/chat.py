@@ -6,7 +6,7 @@ import threading
 import time
 import uuid
 
-from . import claude, progress, system
+from . import claude, progress, system, versions
 from .export import clean_export, render_note
 from .projects import load_state, save_state
 
@@ -64,6 +64,13 @@ class Turn:
         self.state.setdefault("history", []).append({"role": "user", "text": message, "t": time.time()})
         save_state(pdir, self.state)
         self.reply = {"role": "assistant", "text": "", "steps": [], "t": time.time()}
+        self.version = versions.next_number(pdir, self.state)
+        note = render_note(clean_export(self.state.get("export")), versions.video_path(self.version))
+        restored = self.state.pop("restored", None)
+        if restored:
+            note += (f"\nThe user restored version v{restored} in Tweensy: the project files are back to how they "
+                     "were for that version. Build on them.")
+            save_state(pdir, self.state)
 
         cmd = claude.build_command(exe, self.state["session_id"], self.new_session)
         try:
@@ -77,7 +84,7 @@ class Turn:
             RUNNING[name] = self.proc
             STOPPED.discard(name)
         try:
-            self.proc.stdin.write(message + render_note(clean_export(self.state.get("export"))))
+            self.proc.stdin.write(message + note)
             self.proc.stdin.close()
         except OSError:
             pass
@@ -151,6 +158,12 @@ class Turn:
 
         state = load_state(self.pdir) | {"session_id": self.state["session_id"]}
         reply["error"] = is_error
+        reply["text"], label, reply["suggestions"] = versions.split_footer(reply["text"])
+        out = self.pdir / versions.video_path(self.version)
+        if out.is_file() and out.stat().st_mtime >= started:
+            v = versions.record(self.pdir, state, self.version, self.message, label, time.time())
+            reply["version"], reply["video"] = v["n"], v["file"]
         state.setdefault("history", []).append(reply)
         save_state(self.pdir, state)
-        emit({"kind": "done", "error": is_error, "seconds": round(time.time() - started)})
+        emit({"kind": "done", "error": is_error, "seconds": round(time.time() - started),
+              "text": reply["text"], "version": reply.get("version"), "suggestions": reply["suggestions"]})

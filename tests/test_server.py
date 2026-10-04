@@ -17,7 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tweensy import __version__, claude, config, projects  # noqa: E402
+from tweensy import __version__, claude, config, projects, versions  # noqa: E402
 from tweensy.guide import SECTIONS  # noqa: E402
 from tweensy.server import Handler  # noqa: E402
 
@@ -234,6 +234,36 @@ class ServerTest(unittest.TestCase):
             self.assertEqual(self.post_json("/api/assets/add", bad)[0], 400, bad)
         self.assertEqual(self.request("/assets/logo.png")[0], 200)
         self.assertEqual(self.request("/assets/..%2Fsettings.json")[0], 404)
+
+    def test_versions_record_list_and_restore(self):
+        name = self.make_project("versioned")
+        pdir = config.PROJECTS / name
+        (pdir / "renders").mkdir()
+        (pdir / "renders" / "storyboard.mp4").write_bytes(b"old render")  # existing, never touched
+        (pdir / "renders" / "v002.mp4").write_bytes(b"made by hand")     # its number is skipped
+        state = projects.load_state(pdir)
+        self.assertEqual(versions.next_number(pdir, state), 3)
+
+        (pdir / "index.html").write_text("<h1>first</h1>")
+        (pdir / "renders" / "v003.mp4").write_bytes(b"v3")
+        versions.record(pdir, state, 3, "Make a title card", "title card", 1.0)
+        (pdir / "index.html").write_text("<h1>second</h1>")
+        (pdir / "renders" / "v004.mp4").write_bytes(b"v4")
+        versions.record(pdir, state, 4, "Make the pause longer after the reconnect", "", 2.0)
+        projects.save_state(pdir, state)
+
+        _, data = self.get_json(f"/api/projects/{name}/versions")
+        self.assertEqual([v["n"] for v in data["versions"]], [4, 3])
+        self.assertEqual(data["current"], 4)
+        self.assertEqual(data["versions"][0]["label"], "Make the pause longer after the…")
+        self.assertEqual(sorted(o["path"] for o in data["others"]), ["renders/storyboard.mp4", "renders/v002.mp4"])
+
+        status, body = self.post_json(f"/api/projects/{name}/restore", {"n": 3})
+        self.assertEqual((status, body), (200, {"current": 3}))
+        self.assertEqual((pdir / "index.html").read_text(), "<h1>first</h1>")
+        self.assertEqual((pdir / "renders" / "storyboard.mp4").read_bytes(), b"old render")
+        self.assertEqual(projects.load_state(pdir)["restored"], 3)
+        self.assertEqual(self.post_json(f"/api/projects/{name}/restore", {"n": 99})[0], 400)
 
     def test_upload_rejects_bad_names(self):
         name = self.make_project("badnames")

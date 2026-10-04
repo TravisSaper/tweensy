@@ -27,9 +27,9 @@ def clean_export(value):
     return {"aspect": aspect, "res": res, "fps": fps if fps in EXPORT_FPS else DEFAULT_EXPORT["fps"]}
 
 
-def render_note(export):
+def render_note(export, output="<output file>"):
     """Appended to every message so Claude builds and renders at the shape, size and frame rate
-    picked in the app."""
+    picked in the app, into this turn's version file."""
     aspect, fps = export["aspect"], export["fps"]
     size, preset, size_4k = ASPECTS[aspect]
     if export["res"] == "4k":
@@ -45,7 +45,9 @@ def render_note(export):
             f"This shape was picked in the app, so use {aspect} even if the message mentions another shape.\n"
             f"{build}\n"
             f"Render with: mkdir -p {PROGRESS_LOG.parent.as_posix()} && npx hyperframes render . {flags} "
-            f"-o <output file> 2>&1 | tee {PROGRESS_LOG.as_posix()}\n"
+            f"-o {output} 2>&1 | tee {PROGRESS_LOG.as_posix()}\n"
+            f"Save the render as {output} even if the message names another file: Tweensy keeps every render as "
+            "its own version. Then end your reply with one line: Version label: <3 to 6 words on what changed>\n"
             "Run it in the foreground with the longest Bash timeout and wait for it to finish; don't run it in the "
             "background. (Keep the tee part: Tweensy reads that log to show a progress bar.)\n"
             "If you're adding graphics over the user's own footage, match that footage's shape, size and frame "

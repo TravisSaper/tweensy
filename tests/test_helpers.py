@@ -11,9 +11,18 @@ from tweensy.claude import describe_tool, failure_message, friendly_error  # noq
 from tweensy.export import clean_export, render_note  # noqa: E402
 from tweensy.progress import read_render_progress  # noqa: E402
 from tweensy.projects import slugify  # noqa: E402
+from tweensy import versions  # noqa: E402
 
 
 class HelperTest(unittest.TestCase):
+    def test_split_footer(self):
+        text = "Made the pause longer.\nIt's 12 s now.\nVersion label: longer reconnect pause\nSuggestions: Make it faster | Try Neon Pop | | x"
+        body, label, chips = versions.split_footer(text)
+        self.assertEqual(body, "Made the pause longer.\nIt's 12 s now.")
+        self.assertEqual(label, "longer reconnect pause")
+        self.assertEqual(chips, ["Make it faster", "Try Neon Pop", "x"])
+        self.assertEqual(versions.split_footer("No footer here."), ("No footer here.", "", []))
+
     def test_slugify(self):
         self.assertEqual(slugify("  Product Promo #2 "), "product-promo-2")
         self.assertEqual(slugify("!!!"), "project")

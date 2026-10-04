@@ -13,7 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
-from . import __version__, assets, chat, config, projects, system
+from . import __version__, assets, chat, config, projects, system, versions
 from .claude import write_runtime_files
 from .export import clean_export
 from .guide import SECTIONS
@@ -149,6 +149,12 @@ class Handler(BaseHTTPRequestHandler):
                                        "progress": chat.PROGRESS.get(parts[2]) if busy else None})
             if parts[3] == "videos":
                 return self.send_json(projects.list_videos(pdir))
+            if parts[3] == "versions":
+                state = projects.load_state(pdir)
+                vs = [v for v in state.get("versions", []) if (pdir / v["file"]).is_file()]
+                files = {v["file"] for v in vs}
+                return self.send_json({"versions": vs[::-1], "current": state.get("current"),
+                                       "others": [v for v in projects.list_videos(pdir) if v["path"] not in files]})
 
         # /files/<project>/<path...>
         if len(parts) >= 3 and parts[0] == "files":
@@ -181,6 +187,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.handle_upload(parse_qs(url.query))
         if len(parts) == 4 and parts[:2] == ["api", "projects"] and parts[3] == "export":
             return self.handle_export(parts[2])
+        if len(parts) == 4 and parts[:2] == ["api", "projects"] and parts[3] == "restore":
+            return self.handle_restore(parts[2], self.read_json())
         if url.path == "/api/chat":
             return self.handle_chat(self.read_json())
         self.send_json({"error": "Not found"}, 404)
@@ -214,6 +222,20 @@ class Handler(BaseHTTPRequestHandler):
             Path(tmp).unlink(missing_ok=True)
         assets.place(asset, dest_dir / fname)
         return self.send_json({"saved": (dest_dir / fname).relative_to(pdir).as_posix(), "reused": reused})
+
+    def handle_restore(self, name, data):
+        pdir = projects.project_dir(name)
+        if not pdir:
+            return self.send_json({"error": "No such project"}, 404)
+        if chat.is_running(name):
+            return self.send_json({"error": "Claude is still working on this project."}, 409)
+        state = projects.load_state(pdir)
+        v = versions.find(state, data.get("n"))
+        if not v or not versions.restore(pdir, v["n"]):
+            return self.send_json({"error": "That version can't be restored."}, 400)
+        state["current"] = state["restored"] = v["n"]
+        projects.save_state(pdir, state)
+        return self.send_json({"current": v["n"]})
 
     def handle_add_asset(self, data):
         pdir = projects.project_dir(data.get("project") or "")
