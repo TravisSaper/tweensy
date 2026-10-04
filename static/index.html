@@ -123,12 +123,8 @@
     <h2>Create with Claude <span class="spacer"></span><span id="busy" class="hint"></span></h2>
     <div class="scroll" id="chatScroll"><div id="messages"></div></div>
     <div class="composer">
-      <div class="idea-chips" id="ideaChips" aria-label="Ideas">
-        <button class="chip" data-idea="Create a kinetic typography intro">Create a kinetic typography intro</button>
-        <button class="chip" data-idea="Make it more cinematic">Make it more cinematic</button>
-        <button class="chip" data-idea="Try a different style">Try a different style</button>
-        <button class="chip" data-idea="Make the animation faster">Make the animation faster</button>
-      </div>
+      <div class="pending-comments" id="pendingComments" hidden></div>
+      <div class="idea-chips" id="ideaChips" aria-label="Suggestions"></div>
       <div class="prompt-box">
       <textarea id="input" rows="2" placeholder="What do you want to create?"></textarea>
       <div class="bar">

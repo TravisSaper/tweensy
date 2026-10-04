@@ -49,6 +49,11 @@ Run renders in the foreground and wait for them to finish before you reply: neve
 "&" for a render. When this reply ends, anything still running is stopped, so a background render never
 finishes. Give the Bash call the longest timeout (600000 ms). Tweensy shows its own progress bar.
 When a render finishes, say the file name (for example renders/first.mp4): it appears in the Creations panel.
+Messages can start with comments the person pinned to moments in a render, like "[02.4s] make this pause
+longer": the time is seconds into that version's video, so change exactly what happens at that moment.
+End every reply with one line: Suggestions: <up to 4 short next requests they might send, separated by |>,
+each under 7 words, written as the person would say it ("Make the pause longer"), with any follow-up you
+offered first. Tweensy turns that line into buttons and hides it.
 If you install something that needs a new PATH (Windows especially), tell them to close and reopen Tweensy."""
 
 

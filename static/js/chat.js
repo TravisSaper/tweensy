@@ -6,6 +6,7 @@ import { md } from "./markdown.js";
 import { showTab, setInput } from "./guide.js";
 import { statusCard, notifyDone } from "./status-card.js";
 import { loadVideos, selectVideo, fmtSize } from "./videos.js";
+import { chatPlayer, takeComments, hasComments, resetComments, setChips } from "./feedback.js";
 
 function welcome() {
   const starters = [
@@ -60,17 +61,21 @@ function addMessage(m) {
     b.className = "bubble";
     b.innerHTML = md(m.text || "");
     el.appendChild(b);
+    if (m.video) el.appendChild(chatPlayer(m.video, m.version));
   }
   box.appendChild(el);
   scrollDown();
   return el;
 }
 
+let historyProject = null;
 export function renderHistory(history) {
   const box = $("#messages");
   box.innerHTML = "";
+  if (historyProject !== state.project) { historyProject = state.project; resetComments(); }
   if (!history.length) box.appendChild(welcome());
   history.forEach(addMessage);
+  setChips([...history].reverse().find((m) => m.role === "assistant"));
 }
 
 function scrollDown() {
@@ -151,9 +156,12 @@ async function readStream(res, onEvent) {
 }
 
 export async function send() {
-  const text = $("#input").value.trim();
-  if (!text || state.busy || !state.project) return;
+  const typed = $("#input").value.trim();
+  if ((!typed && !hasComments()) || state.busy || !state.project) return;
   const project = state.project;
+  // Comments pinned to moments in a video go first, as structured context: "[02.4s] make this pause longer".
+  const notes = takeComments();
+  const text = notes ? notes + (typed ? `\n\n${typed}` : "") : typed;
   $("#input").value = "";
   autosize();
   if (MOBILE.matches) showTab("chat");
@@ -195,7 +203,12 @@ export async function send() {
         sb.querySelector(".sum").textContent = ev.text;
         card.step(ev.text);
       } else if (ev.kind === "progress") { card.progress(ev); }
-      else if (ev.kind === "done") { failed = ev.error; seconds = ev.seconds; }
+      else if (ev.kind === "done") {
+        failed = ev.error; seconds = ev.seconds;
+        if (ev.text != null) { reply = ev.text; bubble.innerHTML = md(reply); }
+        if (ev.version) el.appendChild(chatPlayer(`renders/v${String(ev.version).padStart(3, "0")}.mp4`, ev.version));
+        setChips({ suggestions: ev.suggestions, text: ev.text });
+      }
       const s = $("#chatScroll");
       if (s.scrollHeight - s.scrollTop - s.clientHeight < 160) scrollDown();
     });
@@ -336,7 +349,6 @@ export function initChat() {
   $("#input").addEventListener("input", autosize);
   renderDestinations();
   $("#attach").onclick = openAddFiles;
-  $("#ideaChips").querySelectorAll("button").forEach((b) => (b.onclick = () => setInput(b.dataset.idea)));
   $("#addFilesClose").onclick = closeAddFiles;
   $("#addFiles").addEventListener("click", (e) => { if (e.target.id === "addFiles") closeAddFiles(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAddFiles(); });
