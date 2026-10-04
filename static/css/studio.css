@@ -246,3 +246,14 @@ nav.bottom button svg { width: 19px; height: 19px; }
 .save-style { margin-top: 10px; justify-self: start; }
 .style-card .row { flex-wrap: wrap; }
 .style-card .row .btn { white-space: nowrap; }
+
+/* ---------- plan usage card (under Creations) ---------- */
+.usage-card { margin: 0 14px 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); display: flex; flex-direction: column; gap: 8px; }
+.usage-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.usage-top { display: flex; justify-content: space-between; font-size: 13px; }
+.usage-top b { font-weight: 600; }
+.usage-bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin: 4px 0 2px; }
+.usage-bar span { display: block; height: 100%; border-radius: 3px; background: var(--action); }
+.usage-row.high .usage-bar span { background: var(--bad); }
+.usage-row.high .usage-top b { color: var(--bad-text); }
+.usage-row .hint, .usage-seen { font-size: 11.5px; }

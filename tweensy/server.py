@@ -128,6 +128,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"port": config.PORT, "saved_port": config.saved_port()})
         if url.path == "/api/styles":
             return self.send_json(styles.load())
+        if url.path == "/api/usage":
+            return self.send_json(chat.load_usage())
         if url.path == "/api/assets":
             return self.send_json({"assets": assets.list_assets(), "folder": str(config.ASSETS)})
         if len(parts) == 2 and parts[0] == "assets":

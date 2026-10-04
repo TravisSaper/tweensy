@@ -292,6 +292,8 @@ class ServerTest(unittest.TestCase):
             {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "npx hyperframes render ."}}]}},
             {"type": "assistant", "message": {"content": [{"type": "text", "text":
                 "Made the pause longer. Now 12 s at 1080p, 24 fps.\nVersion label: longer pause\nSuggestions: Make it faster | Try Neon Pop"}]}},
+            {"type": "rate_limit_event", "rate_limit_info": {"status": "allowed", "rateLimitType": "five_hour", "resetsAt": 1,
+                                                            "unifiedWindows": {"seven_day": {"utilization": 0.53, "resetsAt": 2}}}},
             {"type": "result", "result": "done", "is_error": False},
         ]
         fake.write_text("import json, pathlib, sys\nsys.stdin.read()\n"
@@ -314,6 +316,8 @@ class ServerTest(unittest.TestCase):
         v = projects.load_state(pdir)["versions"][0]
         self.assertEqual((v["label"], v["prompt"]), ("longer pause", "Make the pause longer"))
         self.assertEqual(events[-1]["kind"], "done")
+        usage = self.get_json("/api/usage")[1]
+        self.assertEqual((usage["rateLimitType"], usage["unifiedWindows"]["seven_day"]["utilization"]), ("five_hour", 0.53))
 
     def test_your_styles(self):
         self.assertEqual(self.get_json("/api/styles"), (200, []))

@@ -6,7 +6,7 @@ import threading
 import time
 import uuid
 
-from . import claude, progress, system, versions
+from . import claude, config, progress, system, versions
 from .export import clean_export, render_note
 from .projects import load_state, save_state
 
@@ -42,6 +42,26 @@ def stop_all():
     with RUNNING_LOCK:
         for proc in RUNNING.values():
             system.kill_tree(proc)
+
+
+def usage_path():
+    return config.RUNTIME / "usage.json"
+
+
+def save_usage(info):
+    """Keep the plan usage Claude Code reports with each reply, for the usage card."""
+    try:
+        config.RUNTIME.mkdir(parents=True, exist_ok=True)
+        usage_path().write_text(json.dumps({**info, "seen": time.time()}), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def load_usage():
+    try:
+        return json.loads(usage_path().read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
 
 
 def start(name, pdir, message):
@@ -138,6 +158,8 @@ class Turn:
                                 blocks[-1] = ("tool", step)
                                 reply["steps"].append(step)
                                 emit({"kind": "step", "text": step})
+                elif etype == "rate_limit_event":
+                    save_usage(ev.get("rate_limit_info") or {})
                 elif etype == "result":
                     result_text = ev.get("result")
                     is_error = bool(ev.get("is_error"))

@@ -39,6 +39,7 @@ export async function loadVideos() {
     if (vs.versions.length) list.insertAdjacentHTML("beforeend", `<div class="vgroup">Earlier renders</div>`);
     vs.others.forEach((o) => list.appendChild(item(o.path, o.path, `${fmtSize(o.size)} · ${fmtTime(o.mtime)}`)));
   }
+  loadUsage();
   if (state.selected && !videos.some((v) => v.path === state.selected)) state.selected = null;
   const cur = versionByN(state.current);
   if (!state.selected && videos.length) selectVideo(cur ? cur.file : videos[0].path);
@@ -139,4 +140,32 @@ export function initVideos() {
   $("#compareClose").onclick = () => { $("#compare").hidden = true; $("#compare").querySelectorAll("video").forEach((v) => v.pause()); };
   $("#compareReplay").onclick = playBoth;
   $("#compare").addEventListener("click", (e) => { if (e.target.id === "compare") $("#compareClose").click(); });
+}
+
+// ---------- plan usage: what Claude Code reported with the last reply (no extra requests) ----------
+const WINDOW_NAMES = { five_hour: "Current session", seven_day: "This week", seven_day_opus: "This week · Opus", seven_day_sonnet: "This week · Sonnet" };
+
+function resetText(t) {
+  if (!t) return "";
+  const d = new Date(t * 1000), now = new Date();
+  const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return `Resets ${d.toDateString() === now.toDateString() ? time : `${d.toLocaleDateString([], { weekday: "short" })} ${time}`}`;
+}
+
+async function loadUsage() {
+  const info = await api("/api/usage");
+  const box = $("#usageCard");
+  const windows = {};
+  if (info.rateLimitType) windows[info.rateLimitType] = { utilization: info.utilization, resetsAt: info.resetsAt, status: info.status };
+  for (const [k, w] of Object.entries(info.unifiedWindows || {})) windows[k] = { ...windows[k], ...w };
+  const order = Object.keys(windows).sort((a, b) => (a === "five_hour" ? -1 : b === "five_hour" ? 1 : a.localeCompare(b)));
+  if (!order.length) { box.innerHTML = `<div class="usage-title">Plan usage</div><div class="hint">Shows after your next message.</div>`; return; }
+  box.innerHTML = `<div class="usage-title">Plan usage</div>` + order.map((k) => {
+    const w = windows[k], pct = w.utilization != null ? Math.round(w.utilization * 100) : null;
+    const state = w.status === "rejected" ? "Limit reached" : pct == null ? "Available" : `${pct}% used`;
+    return `<div class="usage-row${pct >= 90 || w.status === "rejected" ? " high" : ""}">
+      <div class="usage-top"><span>${esc(WINDOW_NAMES[k] || k.replace(/_/g, " "))}</span><b>${esc(state)}</b></div>
+      ${pct != null ? `<div class="usage-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${Math.min(pct, 100)}%"></span></div>` : ""}
+      <div class="hint">${esc(resetText(w.resetsAt))}</div></div>`;
+  }).join("") + `<div class="hint usage-seen">Updated with each reply${info.seen ? ` · ${esc(new Date(info.seen * 1000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }))}` : ""}</div>`;
 }
