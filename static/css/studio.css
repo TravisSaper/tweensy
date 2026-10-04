@@ -2,6 +2,7 @@
    Everything here overrides styles.css. To go back, remove the studio.css <link> in index.html. */
 
 :root {
+  --chat-w: 1000px;             /* the conversation column; text inside stays ~75 characters wide */
   --elevated: #ffffff;          /* the prompt box, cards that matter */
   --sep: rgba(0, 0, 0, .06);
 }
@@ -21,8 +22,11 @@
   #guidePanel > * { min-width: 318px; }
 }
 #chatPanel { background: transparent; border-color: transparent; }
-#chatPanel > h2 { border-bottom-color: transparent; }
-#messages { max-width: 780px; margin: 0 auto; padding: 8px 20px 24px; gap: 22px; }
+/* The header, messages and prompt share one centred column, so they line up whether the side panel is open or not. */
+#chatPanel > h2 { border-bottom-color: transparent; width: 100%; max-width: var(--chat-w); margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+#messages { max-width: var(--chat-w); margin: 0 auto; padding: 8px 20px 24px; gap: 22px; }
+.msg .bubble > :not(pre):not(table), .msg.user .bubble { max-width: 75ch; }
+.msg.user { max-width: min(75ch, 80%); }
 .msg { max-width: 100%; }
 
 /* You: a compact, quiet bubble on the right. */
@@ -54,7 +58,7 @@
 /* ---------- the prompt is the main action ---------- */
 .composer {
   border-top: 0; background: transparent; padding: 0 20px 14px;
-  max-width: 820px; width: 100%; margin: 0 auto;
+  max-width: var(--chat-w); width: 100%; margin: 0 auto;
 }
 .idea-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .idea-chips .chip { background: transparent; color: var(--muted); font-size: 12.5px; }
