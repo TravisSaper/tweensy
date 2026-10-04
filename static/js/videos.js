@@ -16,7 +16,8 @@ export function fmtTime(t) {
 export async function loadVideos() {
   if (!state.project) return;
   const name = state.project, q = encodeURIComponent(name);
-  const [videos, vs] = await Promise.all([api(`/api/projects/${q}/videos`), api(`/api/projects/${q}/versions`)]);
+  const [videos, got] = await Promise.all([api(`/api/projects/${q}/videos`), api(`/api/projects/${q}/versions`)]);
+  const vs = { versions: got.versions || [], current: got.current ?? null, others: got.others || videos };
   if (name !== state.project) return;
   state.videos = videos;
   state.versions = vs.versions;
