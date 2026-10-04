@@ -19,7 +19,7 @@ export function showView(view) {
   $("#pageTitle").textContent = TITLES[view];
   document.querySelectorAll("#appnav [data-view]").forEach((b) => b.classList.toggle("on", b.dataset.view === view));
   const dash = view === "dashboard";
-  for (const sel of ["main", "#nav", "#projPicker", "#sidebarToggle"]) $(sel).hidden = !dash;
+  for (const sel of ["main", "#nav", "#projPicker"]) $(sel).hidden = !dash;
   $("#pageTitle").hidden = dash; // on the Dashboard the project name (its picker) is the title
   Object.entries(PAGES).forEach(([v, sel]) => ($(sel).hidden = v !== view));
   if (view === "projects") renderProjects();

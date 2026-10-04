@@ -40,35 +40,12 @@ export function buildNav() {
     tabs.map((t, i) => (i && t.group && tabs[i - 1].group && t.group !== tabs[i - 1].group ? '<span class="nav-sep" aria-hidden="true"></span>' : "") + `<button data-tab="${t.id}" class="${t.mobile ? "mobile-only" : ""}" aria-label="${t.label}">
       <svg viewBox="0 0 24 24" aria-hidden="true">${ICON[t.id]}</svg>${t.label}</button>`).join("");
   $("#nav").querySelectorAll("button").forEach((b) => (b.onclick = () => onNavClick(b.dataset.tab)));
-  $("#sidebarToggle").onclick = () => setSidebar(!sidebarOpen());
   MOBILE.addEventListener("change", () => showTab(MOBILE.matches ? "chat" : state.tab));
   window.addEventListener("resize", () => movePill(false));
-  let closed = false;
-  try { closed = localStorage.getItem("ms-sidebar") === "closed"; } catch {}
-  setSidebar(!closed, false);
 }
 
-// ---------- sidebar (wide screens) ----------
-const sidebarOpen = () => !$("main").classList.contains("sidebar-closed");
-
-// Open or close the left panel. On phones there's no sidebar: the bar switches whole screens.
-export function setSidebar(open, remember = true) {
-  $("main").classList.toggle("sidebar-closed", !open);
-  const btn = $("#sidebarToggle");
-  btn.setAttribute("aria-expanded", String(open));
-  btn.title = open ? "Hide sidebar" : "Show sidebar";
-  btn.setAttribute("aria-label", btn.title);
-  if (remember) { try { localStorage.setItem("ms-sidebar", open ? "open" : "closed"); } catch {} }
-  movePill();
-}
-
-// Clicking the tab that's already open closes the sidebar; any tab opens it again.
+// The side panel is always open on wide screens; the dock just switches what it shows.
 function onNavClick(id) {
-  const tab = TABS.find((t) => t.id === id);
-  if (!MOBILE.matches && !tab.mobile) {
-    if (sidebarOpen() && id === state.tab) { setSidebar(false); return; }
-    if (!sidebarOpen()) setSidebar(true);
-  }
   showTab(id);
 }
 
@@ -77,7 +54,7 @@ function movePill(animate = true) {
   const nav = $("#nav"), pill = nav.querySelector(".nav-pill");
   const active = [...nav.querySelectorAll("button.on")].find((b) => b.offsetParent);
   nav.classList.toggle("no-anim", !animate);
-  if (!active || (!MOBILE.matches && !sidebarOpen())) { pill.style.opacity = "0"; return; }
+  if (!active) { pill.style.opacity = "0"; return; }
   pill.style.opacity = "1";
   pill.style.width = `${active.offsetWidth}px`;
   pill.style.transform = `translateX(${active.offsetLeft}px)`;

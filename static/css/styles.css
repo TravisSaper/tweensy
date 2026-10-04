@@ -414,16 +414,6 @@ details.steps ol { margin: 6px 0 2px; padding-left: 20px; }
 }
 @media (min-width: 1101px) {
   nav.bottom { margin: 12px 12px 12px; border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); align-self: center; }
-  /* Closing the sidebar: its column shrinks to nothing while the panel slides and fades out.
-     Its contents keep their width so text doesn't squash mid-slide. */
-  #guidePanel { transition: opacity .2s, transform .28s var(--ease), margin-right .28s var(--ease); }
-  #guidePanel > * { min-width: 348px; }
-  main.sidebar-closed { grid-template-columns: 0px minmax(0, 1fr) 380px; }
-  main.sidebar-closed ~ nav.bottom button.on { color: var(--muted); } /* nothing is open */
-  main.sidebar-closed #guidePanel {
-    opacity: 0; transform: translateX(-28px); margin-right: -12px; pointer-events: none;
-    border-color: transparent; box-shadow: none;
-  }
 }
 
 /* ---------- storyboard ---------- */

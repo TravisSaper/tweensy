@@ -18,12 +18,9 @@
 /* ---------- the conversation is the centre ---------- */
 @media (min-width: 1101px) {
   main { grid-template-columns: 320px minmax(0, 1fr) 360px; }
-  main.sidebar-closed { grid-template-columns: 0px minmax(0, 1fr) 360px; }
-  #guidePanel > * { min-width: 318px; }
   /* Centre the dock under the chat column, not the whole page: an asymmetric margin of
      (Creations width - side panel width) moves its centre by half that, which is exactly where the chat's centre is. */
   nav.bottom { margin-right: calc(12px + 360px - 320px); transition: margin .28s var(--ease); }
-  main.sidebar-closed ~ nav.bottom { margin-right: calc(12px + 360px); }
 }
 #chatPanel { background: transparent; border-color: transparent; }
 /* The header, messages and prompt share one centred column, so they line up whether the side panel is open or not. */
