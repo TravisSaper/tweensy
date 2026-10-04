@@ -4,7 +4,6 @@ import { $, esc } from "./util.js";
 import { state, MOBILE } from "./state.js";
 import { exportPicker } from "./export.js";
 import { openBoard } from "./sketch.js";
-import { settingsPanel } from "./settings.js";
 import { autosize } from "./chat.js";
 
 // Menus in the bottom bar. Guide menus fill the left panel; Chat and Videos are their own
@@ -17,7 +16,6 @@ const ICON = {
   export: '<path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/>',
   sketch: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
   fix: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
-  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   chat: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
   videos: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5"/>',
 };
@@ -31,7 +29,6 @@ export const TABS = [
   { id: "sketch", group: "create", label: "Sketch", sections: [], intro: "Storyboard your video scene by scene. Claude turns it into a finished animation." },
   { id: "export", group: "finish", label: "Export", sections: ["export"], intro: "Choose quality for this project, or export a special format." },
   { id: "fix", group: "refine", label: "Fix", sections: ["fix"], intro: "Something looks off? Click the problem." },
-  { id: "settings", group: "finish", label: "Settings", sections: [], intro: "How Tweensy looks and where it runs." },
   { id: "chat", label: "Chat", mobile: true },
   { id: "videos", label: "Creations", mobile: true },
 ];
@@ -122,7 +119,6 @@ export function renderGuide() {
   root.innerHTML = `<div class="tab-intro">${esc(tab.intro)}</div>`;
   if (tab.id === "export") root.appendChild(exportPicker());
   if (tab.id === "sketch") root.appendChild(sketchIntro());
-  if (tab.id === "settings") root.appendChild(settingsPanel());
   tab.sections.forEach((sid) => {
     const sec = state.guide.find((s) => s.id === sid);
     if (sec) root.appendChild(renderSection(sec));

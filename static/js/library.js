@@ -5,9 +5,10 @@ import { $, esc, api } from "./util.js";
 import { state } from "./state.js";
 import { loadProjects } from "./projects.js";
 import { fmtSize, fmtTime } from "./videos.js";
+import { settingsPanel } from "./settings.js";
 
-const TITLES = { dashboard: "Dashboard", projects: "Projects", library: "Video library" };
-const PAGES = { projects: "#projectsPage", library: "#libraryPage" };
+const TITLES = { dashboard: "Dashboard", projects: "Projects", library: "Video library", settings: "Settings" };
+const PAGES = { projects: "#projectsPage", library: "#libraryPage", settings: "#settingsPage" };
 const ICON_FOLDER = '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
 const expanded = new Set(); // projects opened in the library
 const count = (n) => `${n} video${n === 1 ? "" : "s"}`;
@@ -23,6 +24,7 @@ export function showView(view) {
   Object.entries(PAGES).forEach(([v, sel]) => ($(sel).hidden = v !== view));
   if (view === "projects") renderProjects();
   if (view === "library") renderLibrary();
+  if (view === "settings") $("#settingsPage").replaceChildren(settingsPanel());
 }
 
 // ---------- Projects ----------

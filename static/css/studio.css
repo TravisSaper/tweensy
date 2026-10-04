@@ -212,3 +212,6 @@ nav.bottom button svg { width: 19px; height: 19px; }
   74% { transform: rotate(3deg); }
   90%, 100% { transform: rotate(0); }
 }
+
+#settingsPage { max-width: 640px; }
+#settingsPage .group { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 12px; padding: 14px 16px; }
