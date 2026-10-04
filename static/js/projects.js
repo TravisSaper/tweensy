@@ -6,7 +6,7 @@ import { renderGuide } from "./guide.js";
 import { refreshExport } from "./export.js";
 import { renderHistory, setBusy, watchBusyProject } from "./chat.js";
 import { loadVideos } from "./videos.js";
-import { askText } from "./dialog.js";
+import { askText, notice } from "./dialog.js";
 import { showView } from "./library.js";
 
 // Same rules as the server (tweensy/projects.py), so the preview matches the folder it makes.
@@ -43,7 +43,14 @@ async function openProject(name) {
   try { localStorage.setItem("ms-project", name); } catch {}
   const data = await api(`/api/projects/${encodeURIComponent(name)}/history`);
   renderHistory(data.history || []);
-  $("#folder").textContent = "Project folder: " + (data.path || "");
+  // The full path is long and personal; keep it in the tooltip and open it on click.
+  $("#folder").innerHTML = `<button class="btn small" id="openFolder">Open folder</button>
+    <span class="hint">Your files and renders for this project</span>`;
+  $("#openFolder").title = data.path || "";
+  $("#openFolder").onclick = async () => {
+    const r = await postJson(`/api/projects/${encodeURIComponent(name)}/open-folder`, {});
+    if (r.error) notice(`${r.error}\n\nThe folder is ${r.path}`, "Couldn't open the folder");
+  };
   state.exp = data.export || { aspect: "16:9", res: "4k", fps: 60 };
   refreshExport();
   setBusy(!!data.busy);

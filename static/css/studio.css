@@ -168,3 +168,5 @@ nav.bottom button svg { width: 19px; height: 19px; }
   padding: 5px 8px; max-width: 46vw;
 }
 #project:hover, #project:focus-visible { border-color: var(--line); background-color: var(--panel-2); }
+
+#folder { display: flex; align-items: center; gap: 10px; }

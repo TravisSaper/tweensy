@@ -91,6 +91,16 @@ def popen_group_kwargs():
     return {"start_new_session": True}
 
 
+def open_folder(path):
+    """Show a folder in Finder, Explorer or the desktop's file manager."""
+    if config.IS_WINDOWS:
+        os.startfile(path)  # noqa: S606 (a local folder the app owns)
+    else:
+        cmd = "open" if config.OS_NAME == "mac" else "xdg-open"
+        subprocess.Popen([cmd, str(path)], env=child_env(), stdin=subprocess.DEVNULL,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+
+
 def kill_tree(proc):
     if config.IS_WINDOWS:
         run_quiet(["taskkill", "/F", "/T", "/PID", str(proc.pid)])

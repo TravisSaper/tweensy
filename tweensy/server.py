@@ -187,6 +187,15 @@ class Handler(BaseHTTPRequestHandler):
             return self.handle_upload(parse_qs(url.query))
         if len(parts) == 4 and parts[:2] == ["api", "projects"] and parts[3] == "export":
             return self.handle_export(parts[2])
+        if len(parts) == 4 and parts[:2] == ["api", "projects"] and parts[3] == "open-folder":
+            pdir = projects.project_dir(parts[2])
+            if not pdir:
+                return self.send_json({"error": "No such project"}, 404)
+            try:
+                system.open_folder(pdir)
+            except OSError as err:
+                return self.send_json({"error": f"Couldn't open the folder: {err}", "path": str(pdir)}, 500)
+            return self.send_json({"opened": True})
         if len(parts) == 4 and parts[:2] == ["api", "projects"] and parts[3] == "restore":
             return self.handle_restore(parts[2], self.read_json())
         if url.path == "/api/chat":

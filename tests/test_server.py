@@ -314,6 +314,17 @@ class ServerTest(unittest.TestCase):
         self.assertEqual((v["label"], v["prompt"]), ("longer pause", "Make the pause longer"))
         self.assertEqual(events[-1]["kind"], "done")
 
+    def test_open_folder(self):
+        name = self.make_project("openme")
+        opened, real = [], system.open_folder
+        system.open_folder = opened.append
+        try:
+            self.assertEqual(self.post_json(f"/api/projects/{name}/open-folder", {}), (200, {"opened": True}))
+            self.assertEqual(self.post_json("/api/projects/nope/open-folder", {})[0], 404)
+        finally:
+            system.open_folder = real
+        self.assertEqual(opened, [config.PROJECTS / name])
+
     def test_chat_needs_project_and_message(self):
         status, body = self.post_json("/api/chat", {"project": "", "message": "hi"})
         self.assertEqual(status, 400)
